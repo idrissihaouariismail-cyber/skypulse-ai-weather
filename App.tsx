@@ -215,7 +215,7 @@ export default function App() {
         return (
           <>
             {locationDenied && (
-              <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
+              <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-md">
                 <div className="bg-amber-500/90 backdrop-blur-md rounded-lg px-4 py-3 text-white text-sm text-center shadow-lg">
                   {(() => {
                     const lang = settings.language === "auto" ? detectedLanguage : settings.language;

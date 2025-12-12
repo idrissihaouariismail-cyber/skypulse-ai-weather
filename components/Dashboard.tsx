@@ -270,9 +270,30 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
     insights.push(t("ai.health.humidity_elevated"));
   }
 
-  // Remove duplicates and join with spaces
-  const uniqueInsights = Array.from(new Set(insights));
-  return uniqueInsights.join(" ");
+  // Remove duplicates and format as readable sentences
+  // Filter out any raw keys (keys that start with "ai.") - these indicate missing translations
+  const uniqueInsights = Array.from(new Set(insights))
+    .filter(insight => {
+      // Remove empty strings and any raw translation keys (keys that weren't translated)
+      const trimmed = insight?.trim() || "";
+      // If it looks like a translation key (starts with "ai."), filter it out
+      // This ensures we only show actual translated text, not raw keys
+      return trimmed.length > 0 && !trimmed.startsWith("ai.");
+    });
+  
+  // Join insights with proper sentence formatting
+  // Each insight should be a complete sentence, so we join with spaces
+  // and ensure proper punctuation
+  return uniqueInsights
+    .map(insight => {
+      // Ensure each insight ends with proper punctuation
+      const trimmed = insight.trim();
+      if (trimmed && !trimmed.match(/[.!?]$/)) {
+        return trimmed + ".";
+      }
+      return trimmed;
+    })
+    .join(" "); // Join with single space for natural reading flow
 }
 
 function Dashboard({ weatherData, settings, goTo, onSearch }: Props) {
@@ -306,10 +327,17 @@ function Dashboard({ weatherData, settings, goTo, onSearch }: Props) {
   const forecast = weatherData.forecast?.slice(0, 5) || [];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* SEARCH BAR - Fixed at top, always visible */}
+    <div className="min-h-screen bg-black text-white m-0 p-0">
+      {/* HEADER - Full width, perfect rectangle, no rounded corners */}
+      <div className="relative w-screen h-64 overflow-hidden rounded-none m-0 p-0">
+        <WeatherBackground
+          condition={(current.condition || "clear").toLowerCase()}
+        />
+      </div>
+
+      {/* SEARCH BAR - Fixed at top, floating inside header */}
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-md">
-        <form onSubmit={handleSearchSubmit}>
+        <form onSubmit={handleSearchSubmit} className="m-0 p-0">
           <div className="bg-black/20 backdrop-blur-md rounded-full px-4 py-2.5 flex items-center gap-3 border border-white/10 shadow-lg">
             <input
               type="text"
@@ -323,13 +351,6 @@ function Dashboard({ weatherData, settings, goTo, onSearch }: Props) {
             </button>
           </div>
         </form>
-      </div>
-
-      {/* HEADER - Full width, perfect rectangle, no rounded corners */}
-      <div className="relative w-screen h-64 overflow-hidden rounded-none">
-        <WeatherBackground
-          condition={(current.condition || "clear").toLowerCase()}
-        />
       </div>
 
       {/* TEMPERATURE + LOCATION */}

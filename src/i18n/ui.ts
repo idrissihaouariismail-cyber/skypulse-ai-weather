@@ -370,6 +370,75 @@ export const UI_TEXT = {
     // AI Insight
     aiInsight: "Analyse IA",
     
+    // AI Insight - General Conditions
+    "ai.clear.general": "Ciel dégagé avec une excellente visibilité. Temps parfait pour les activités en plein air.",
+    "ai.partly_cloudy.general": "Conditions partiellement nuageuses. Temps agréable avec quelques nuages occasionnels.",
+    "ai.cloudy.general": "Ciel nuageux. Les conditions couvertes peuvent affecter légèrement la visibilité.",
+    "ai.rain.general": "Conditions pluvieuses attendues. Emportez un parapluie et préparez-vous aux surfaces mouillées.",
+    "ai.heavy_rain.general": "Pluies abondantes attendues. Évitez les activités en plein air et conduisez avec une prudence accrue.",
+    "ai.light_rain.general": "Pluie légère ou bruine. Inconvénient mineur, mais les activités peuvent continuer avec des précautions.",
+    "ai.snow.general": "Conditions neigeuses. Les routes et les chemins peuvent être glissants, voyagez avec prudence.",
+    "ai.heavy_snow.general": "Chutes de neige abondantes attendues. Perturbations de voyage importantes possibles.",
+    "ai.thunderstorm.general": "Activité orageuse. Cherchez un abri intérieur immédiatement et évitez les zones ouvertes.",
+    "ai.fog.general": "Conditions brumeuses. Visibilité considérablement réduite, faites preuve d'une extrême prudence.",
+    "ai.mist.general": "Conditions brumeuses. Visibilité réduite, conduisez prudemment.",
+    "ai.haze.general": "Conditions brumeuses. Visibilité légèrement réduite et qualité de l'air.",
+    
+    // AI Insight - Driving & Visibility
+    "ai.driving.good": "Excellentes conditions de conduite avec une visibilité claire.",
+    "ai.driving.low.visibility": "Conditions de faible visibilité. Conduisez lentement, utilisez les feux de croisement et maintenez une distance de sécurité.",
+    "ai.driving.slippery": "Conditions de route glissantes. Réduisez la vitesse, augmentez la distance de suivi et évitez les manœuvres brusques.",
+    "ai.driving.heavy.rain": "Pluies abondantes affectant la visibilité et l'adhérence de la route. Conduisez avec une extrême prudence.",
+    "ai.driving.snow.ice": "Neige et glace sur les routes. Ne conduisez que si absolument nécessaire, utilisez des pneus d'hiver.",
+    "ai.driving.windy": "Vents forts peuvent affecter la stabilité du véhicule. Gardez les deux mains sur le volant.",
+    
+    // AI Insight - Travel (Air & Road)
+    "ai.travel.ok": "Bonnes conditions de voyage. Aucun retard important attendu.",
+    "ai.travel.delays_rain": "La pluie peut causer des retards de voyage. Vérifiez les horaires avant le départ.",
+    "ai.travel.delays_fog": "Le brouillard peut causer des retards ou annulations de vol. Vérifiez avec votre compagnie aérienne.",
+    "ai.travel.delays_snow": "La neige peut causer des perturbations importantes de voyage. Prévoyez du temps supplémentaire pour les trajets.",
+    "ai.travel.windy": "Vents forts peuvent causer des turbulences et des retards de voyage.",
+    "ai.travel.turbulence": "Turbulences probables dues aux conditions météorologiques. Attendez-vous à un vol agité.",
+    "ai.travel.smooth": "Conditions de voyage fluides attendues avec des perturbations minimales.",
+    
+    // AI Insight - Sports Activities
+    "ai.sports.perfect": "Conditions parfaites pour les sports et activités en plein air.",
+    "ai.sports.low_visibility": "La faible visibilité peut affecter les sports en plein air. Faites preuve de prudence.",
+    "ai.sports.avoid_thunder": "Évitez les sports en plein air pendant les orages. Cherchez des alternatives intérieures.",
+    "ai.sports.heat_warning": "Conditions chaudes. Faites de l'exercice tôt le matin ou en soirée, restez hydraté.",
+    "ai.sports.cold_warning": "Conditions froides. Habillez-vous en couches et limitez l'exercice prolongé en plein air.",
+    "ai.sports.wet_conditions": "Conditions humides peuvent affecter les sports en plein air. Envisagez des alternatives intérieures.",
+    "ai.sports.windy": "Conditions venteuses peuvent affecter les sports de balle et les activités en plein air.",
+    
+    // AI Insight - Sea & Fishing
+    "ai.sea.good": "Bonnes conditions maritimes pour la pêche et les activités nautiques.",
+    "ai.sea.rough_sea": "Conditions maritimes agitées. Évitez les activités nautiques et la pêche.",
+    "ai.sea.strong_wind": "Vents forts créant des mers agitées. Pas adapté aux petits bateaux.",
+    "ai.sea.poor_visibility": "Mauvaise visibilité en mer. Faites preuve d'une extrême prudence si vous naviguez.",
+    "ai.sea.calm": "Conditions maritimes calmes. Excellent pour la pêche et les sports nautiques.",
+    "ai.sea.moderate": "Conditions maritimes modérées. Adapté uniquement aux navigateurs expérimentés.",
+    
+    // AI Insight - Clothing
+    "ai.clothing.hot": "Temps chaud. Portez des vêtements légers et respirants, un chapeau et des lunettes de soleil.",
+    "ai.clothing.cold": "Temps froid. Habillez-vous en couches chaudes, gants et chapeau.",
+    "ai.clothing.rain": "Conditions pluvieuses. Portez une veste imperméable et des chaussures.",
+    "ai.clothing.wind": "Conditions venteuses. Portez une couche extérieure résistante au vent.",
+    "ai.clothing.freezing": "Températures glaciales. Portez des vêtements d'hiver lourds et protégez la peau exposée.",
+    "ai.clothing.extreme_heat": "Chaleur extrême. Portez des vêtements amples et de couleur claire et restez hydraté.",
+    
+    // AI Insight - Health Warnings
+    "ai.health.heat_extreme": "Avertissement de chaleur extrême. Restez à l'intérieur pendant les heures de pointe, buvez beaucoup d'eau.",
+    "ai.health.heat_advisory": "Avis de chaleur. Limitez l'exposition au soleil, cherchez l'ombre, restez hydraté.",
+    "ai.health.cold_extreme": "Avertissement de froid extrême. Risque d'engelures, limitez le temps à l'extérieur.",
+    "ai.health.cold_freezing": "Conditions glaciales. Habillez-vous en couches chaudes, protégez la peau exposée.",
+    "ai.health.cold_stress": "Risque de stress dû au froid. Les personnes âgées et les enfants doivent s'habiller chaudement.",
+    "ai.health.uv_very_high": "Indice UV très élevé. Évitez le soleil entre 10h et 16h, utilisez un FPS 50+.",
+    "ai.health.uv_high": "Indice UV élevé. Appliquez de la crème solaire, portez un chapeau et des lunettes de soleil.",
+    "ai.health.uv_moderate": "Indice UV modéré. Protection solaire recommandée pour une exposition prolongée.",
+    "ai.health.uv_low": "Indice UV faible. Protection solaire minimale nécessaire.",
+    "ai.health.humidity_high": "Humidité élevée rendant la sensation beaucoup plus chaude. Prenez des pauses supplémentaires.",
+    "ai.health.humidity_elevated": "Humidité élevée peut être inconfortable pendant l'activité.",
+    
     // Forecast
     viewAll: "Voir tout",
     forecastDataUnavailable: "Données de prévision indisponibles",
@@ -658,6 +727,188 @@ export const UI_TEXT = {
     error: "Error",
     close: "Cerrar",
     back: "Atrás",
+    
+    // About App
+    aboutAppTitle: "Acerca de SkyPulse AI Weather",
+    privacyPolicyTitle: "Política de privacidad",
+    "about.paragraph1": "SkyPulse AI Weather es una aplicación meteorológica inteligente que proporciona pronósticos en tiempo real, análisis impulsados por IA y experiencias visuales hermosas.",
+    "about.paragraph2": "Nuestra misión es entregar información meteorológica precisa y útil para apoyar sus decisiones diarias.",
+    "about.paragraph3": "SkyPulse está impulsado por modelos de IA y múltiples API meteorológicas para garantizar confiabilidad y precisión.",
+    
+    // Privacy Policy
+    "privacy.paragraph1": "Respetamos su privacidad. SkyPulse AI Weather no recopila datos personales sin consentimiento.",
+    "privacy.paragraph2": "La información de ubicación se usa solo para mostrar el clima local y nunca se almacena o comparte.",
+    "privacy.paragraph3": "No vendemos ni transferimos sus datos a terceros. Puede usar la aplicación de forma anónima en cualquier momento.",
+    
+    // Location
+    "location.detecting": "Detectando su ubicación…",
+    "location.denied": "No se puede detectar su ubicación. Por favor, active el GPS.",
+    "location.searchPrompt": "No se puede detectar su ubicación, por favor use la búsqueda.",
+    
+    // Weather Conditions
+    clear: "Despejado",
+    cloudy: "Nublado",
+    partly_cloudy: "Parcialmente nublado",
+    light_rain: "Lluvia ligera",
+    heavy_rain: "Lluvia intensa",
+    snow: "Nieve",
+    light_snow: "Nieve ligera",
+    heavy_snow: "Nieve intensa",
+    storm: "Tormenta",
+    thunderstorm: "Tormenta eléctrica",
+    haze: "Calima",
+    fog: "Niebla",
+    mist: "Bruma",
+    sunny: "Soleado",
+    overcast: "Cubierto",
+    
+    // AQI Categories
+    unknown: "Desconocido",
+    airQualityDataUnavailable: "Datos de calidad del aire no disponibles",
+    unhealthyForSensitiveGroups: "Insalubre para grupos sensibles",
+    veryUnhealthy: "Muy insalubre",
+    hazardous: "Peligroso",
+    
+    // AQI Advisories (legacy - kept for compatibility)
+    aqiGoodAdvisory: "La calidad del aire es satisfactoria y presenta poco riesgo.",
+    aqiModerateAdvisory: "Aceptable para la mayoría, pero los grupos sensibles pueden experimentar problemas.",
+    aqiUnhealthySensitiveAdvisory: "Las personas sensibles deben limitar la actividad al aire libre.",
+    aqiUnhealthyAdvisory: "Todos pueden comenzar a experimentar efectos en la salud.",
+    aqiVeryUnhealthyAdvisory: "Alerta de salud: todos pueden experimentar efectos graves.",
+    aqiHazardousAdvisory: "Advertencia de salud: evite todas las actividades al aire libre.",
+    
+    // Air Quality - Good (0-50)
+    "air.good.general": "La calidad del aire es satisfactoria y presenta poco riesgo.",
+    "air.good.athletes": "Los atletas pueden entrenar normalmente al aire libre.",
+    "air.good.respiratory": "Las personas con asma o problemas respiratorios no deberían tener problemas.",
+    "air.good.children": "Los niños y ancianos pueden disfrutar del tiempo al aire libre de forma segura.",
+    "air.good.windows": "Las ventanas pueden mantenerse abiertas para aire fresco.",
+    
+    // Air Quality - Moderate (51-100)
+    "air.moderate.general": "Aceptable para la mayoría, pero los grupos sensibles pueden experimentar problemas.",
+    "air.moderate.athletes": "Los atletas pueden experimentar molestias respiratorias menores durante el entrenamiento intenso.",
+    "air.moderate.respiratory": "Los grupos sensibles (asma, problemas cardíacos) deben reducir el esfuerzo prolongado al aire libre.",
+    "air.moderate.children": "Los niños y ancianos deben reducir las actividades prolongadas al aire libre.",
+    "air.moderate.windows": "Considere mantener las ventanas cerradas si es sensible a la calidad del aire.",
+    
+    // Air Quality - Unhealthy for Sensitive Groups (101-150)
+    "air.sensitive.general": "Las personas sensibles deben limitar la actividad al aire libre.",
+    "air.sensitive.athletes": "Los atletas deben posponer el entrenamiento intenso o hacer ejercicio en interiores.",
+    "air.sensitive.respiratory": "Las personas con asma o problemas respiratorios deben evitar actividades al aire libre y mantener las ventanas cerradas.",
+    "air.sensitive.children": "Los niños y ancianos deben limitar el tiempo al aire libre.",
+    "air.sensitive.windows": "Mantenga las ventanas cerradas para proteger la calidad del aire interior.",
+    
+    // Air Quality - Unhealthy (151-200)
+    "air.unhealthy.general": "Todos pueden comenzar a experimentar efectos en la salud.",
+    "air.unhealthy.athletes": "Los atletas deben evitar el entrenamiento al aire libre: haga ejercicio en interiores en su lugar.",
+    "air.unhealthy.respiratory": "Las personas con asma deben usar inhaladores según sea necesario y permanecer en interiores.",
+    "air.unhealthy.children": "Los niños, ancianos y personas con problemas cardíacos o pulmonares deben limitar las actividades al aire libre.",
+    "air.unhealthy.windows": "Mantenga las ventanas y puertas cerradas.",
+    
+    // Air Quality - Very Unhealthy (201-300)
+    "air.veryUnhealthy.general": "Alerta de salud: todos pueden experimentar efectos graves.",
+    "air.veryUnhealthy.athletes": "Los atletas deben entrenar solo en interiores.",
+    "air.veryUnhealthy.respiratory": "Las personas con asma o problemas respiratorios deben permanecer en interiores con ventanas cerradas y usar purificadores de aire si están disponibles.",
+    "air.veryUnhealthy.children": "Los niños y ancianos deben permanecer en el interior.",
+    "air.veryUnhealthy.windows": "Mantenga todas las ventanas cerradas y use purificadores de aire si están disponibles.",
+    
+    // Air Quality - Hazardous (300+)
+    "air.hazardous.general": "Advertencia de salud: evite todas las actividades al aire libre.",
+    "air.hazardous.athletes": "Los atletas no deben entrenar al aire libre.",
+    "air.hazardous.respiratory": "Las personas con problemas respiratorios deben evitar cualquier exposición al aire libre y tener medicamentos listos.",
+    "air.hazardous.children": "Los niños y ancianos deben permanecer en el interior.",
+    "air.hazardous.windows": "Mantenga todas las ventanas y puertas cerradas. Use purificadores de aire si están disponibles.",
+    
+    // Air Quality - Common
+    "air.press.for.details": "Toque para análisis detallado",
+    
+    // AI Insight
+    aiInsight: "Análisis IA",
+    
+    // AI Insight - General Conditions
+    "ai.clear.general": "Cielos despejados con excelente visibilidad. Clima perfecto para actividades al aire libre.",
+    "ai.partly_cloudy.general": "Condiciones parcialmente nubladas. Clima agradable con cobertura de nubes ocasional.",
+    "ai.cloudy.general": "Cielos nublados. Las condiciones nubladas pueden afectar ligeramente la visibilidad.",
+    "ai.rain.general": "Condiciones lluviosas esperadas. Lleve un paraguas y prepárese para superficies mojadas.",
+    "ai.heavy_rain.general": "Lluvias intensas esperadas. Evite actividades al aire libre y conduzca con precaución adicional.",
+    "ai.light_rain.general": "Lluvia ligera o llovizna. Inconveniente menor, pero las actividades pueden continuar con precauciones.",
+    "ai.snow.general": "Condiciones de nieve. Las carreteras y senderos pueden estar resbaladizos, viaje con precaución.",
+    "ai.heavy_snow.general": "Fuertes nevadas esperadas. Posibles interrupciones significativas de viaje.",
+    "ai.thunderstorm.general": "Actividad de tormenta eléctrica. Busque refugio en interiores inmediatamente y evite áreas abiertas.",
+    "ai.fog.general": "Condiciones de niebla. Visibilidad significativamente reducida, ejercite extrema precaución.",
+    "ai.mist.general": "Condiciones de bruma. Visibilidad reducida, conduzca con cuidado.",
+    "ai.haze.general": "Condiciones de calima. Visibilidad ligeramente reducida y calidad del aire.",
+    
+    // AI Insight - Driving & Visibility
+    "ai.driving.good": "Excelentes condiciones de conducción con visibilidad clara.",
+    "ai.driving.low.visibility": "Condiciones de baja visibilidad. Conduzca lentamente, use luces bajas y mantenga una distancia segura.",
+    "ai.driving.slippery": "Condiciones de carretera resbaladizas. Reduzca la velocidad, aumente la distancia de seguimiento y evite maniobras bruscas.",
+    "ai.driving.heavy.rain": "Lluvia intensa afectando la visibilidad y el agarre de la carretera. Conduzca con extrema precaución.",
+    "ai.driving.snow.ice": "Nieve y hielo en las carreteras. Conduzca solo si es absolutamente necesario, use neumáticos de invierno.",
+    "ai.driving.windy": "Vientos fuertes pueden afectar la estabilidad del vehículo. Mantenga ambas manos en el volante.",
+    
+    // AI Insight - Travel (Air & Road)
+    "ai.travel.ok": "Buenas condiciones de viaje. No se esperan retrasos significativos.",
+    "ai.travel.delays_rain": "La lluvia puede causar retrasos en los viajes. Verifique los horarios antes de partir.",
+    "ai.travel.delays_fog": "La niebla puede causar retrasos o cancelaciones de vuelos. Verifique con su aerolínea.",
+    "ai.travel.delays_snow": "La nieve puede causar interrupciones significativas de viaje. Permita tiempo adicional para los viajes.",
+    "ai.travel.windy": "Vientos fuertes pueden causar turbulencias y retrasos en los viajes.",
+    "ai.travel.turbulence": "Turbulencias probables debido a las condiciones climáticas. Espere un viaje agitado.",
+    "ai.travel.smooth": "Se esperan condiciones de viaje suaves con interrupciones mínimas.",
+    
+    // AI Insight - Sports Activities
+    "ai.sports.perfect": "Condiciones perfectas para deportes y actividades al aire libre.",
+    "ai.sports.low_visibility": "La baja visibilidad puede afectar los deportes al aire libre. Ejercite precaución.",
+    "ai.sports.avoid_thunder": "Evite deportes al aire libre durante tormentas eléctricas. Busque alternativas en interiores.",
+    "ai.sports.heat_warning": "Condiciones cálidas. Haga ejercicio temprano en la mañana o por la noche, manténgase hidratado.",
+    "ai.sports.cold_warning": "Condiciones frías. Vístase en capas y limite el ejercicio prolongado al aire libre.",
+    "ai.sports.wet_conditions": "Condiciones húmedas pueden afectar los deportes al aire libre. Considere alternativas en interiores.",
+    "ai.sports.windy": "Condiciones ventosas pueden afectar los deportes de pelota y actividades al aire libre.",
+    
+    // AI Insight - Sea & Fishing
+    "ai.sea.good": "Buenas condiciones marítimas para pesca y actividades acuáticas.",
+    "ai.sea.rough_sea": "Condiciones marítimas agitadas. Evite actividades acuáticas y pesca.",
+    "ai.sea.strong_wind": "Vientos fuertes creando mares agitados. No adecuado para botes pequeños.",
+    "ai.sea.poor_visibility": "Mala visibilidad en el mar. Ejercite extrema precaución si navega.",
+    "ai.sea.calm": "Condiciones marítimas tranquilas. Excelente para pesca y deportes acuáticos.",
+    "ai.sea.moderate": "Condiciones marítimas moderadas. Adecuado solo para navegantes experimentados.",
+    
+    // AI Insight - Clothing
+    "ai.clothing.hot": "Clima cálido. Use ropa ligera y transpirable, sombrero y gafas de sol.",
+    "ai.clothing.cold": "Clima frío. Vístase en capas cálidas, guantes y sombrero.",
+    "ai.clothing.rain": "Condiciones lluviosas. Use chaqueta impermeable y zapatos.",
+    "ai.clothing.wind": "Condiciones ventosas. Use una capa exterior resistente al viento.",
+    "ai.clothing.freezing": "Temperaturas bajo cero. Use ropa de invierno pesada y proteja la piel expuesta.",
+    "ai.clothing.extreme_heat": "Calor extremo. Use ropa holgada y de color claro y manténgase hidratado.",
+    
+    // AI Insight - Health Warnings
+    "ai.health.heat_extreme": "Advertencia de calor extremo. Permanezca en interiores durante las horas pico, beba mucha agua.",
+    "ai.health.heat_advisory": "Aviso de calor. Limite la exposición al sol, busque sombra, manténgase hidratado.",
+    "ai.health.cold_extreme": "Advertencia de frío extremo. Riesgo de congelación, limite el tiempo al aire libre.",
+    "ai.health.cold_freezing": "Condiciones de congelación. Vístase en capas cálidas, proteja la piel expuesta.",
+    "ai.health.cold_stress": "Riesgo de estrés por frío. Los ancianos y niños deben vestirse abrigadamente.",
+    "ai.health.uv_very_high": "Índice UV muy alto. Evite el sol entre las 10 AM y las 4 PM, use SPF 50+.",
+    "ai.health.uv_high": "Índice UV alto. Aplique protector solar, use sombrero y gafas de sol.",
+    "ai.health.uv_moderate": "Índice UV moderado. Se recomienda protección solar para exposición prolongada.",
+    "ai.health.uv_low": "Índice UV bajo. Se necesita protección solar mínima.",
+    "ai.health.humidity_high": "Alta humedad haciendo que se sienta mucho más caliente. Tome descansos adicionales.",
+    "ai.health.humidity_elevated": "Humedad elevada puede sentirse incómoda durante la actividad.",
+    
+    // Forecast
+    viewAll: "Ver todo",
+    forecastDataUnavailable: "Datos de pronóstico no disponibles",
+    hourForecast: "Pronóstico de 48 horas",
+    scrollToViewHourly: "Desplácese para ver los cambios por hora",
+    
+    // Radar
+    liveWeatherPatterns: "Patrones meteorológicos en vivo y mapa de precipitaciones",
+    tapToViewFullRadar: "Toque para ver el radar completo",
+    
+    // Air Quality
+    tapForDetailedAnalysis: "Toque para análisis detallado",
+    
+    // Date/Time
+    uv: "UV",
   },
 };
 
