@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="12" fill="url(#windyGrad)"/>
+  <path d="M12 28Q20 26 28 28T44 26" stroke="#A8C8E8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M8 36Q16 34 24 36T40 34" stroke="#B8D8F8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M16 44Q24 42 32 44T48 42" stroke="#A8C8E8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="48" cy="28" r="3" fill="#90B8E8"/>
+  <circle cx="52" cy="36" r="3" fill="#A0C8F8"/>
+  <circle cx="50" cy="44" r="3" fill="#90B8E8"/>
+  <defs>
+    <linearGradient id="windyGrad" x1="0" y1="0" x2="64" y2="64">
+      <stop offset="0%" stop-color="#A8C8E8"/>
+      <stop offset="100%" stop-color="#C8E8F8"/>
+    </linearGradient>
+  </defs>
+</svg>
+

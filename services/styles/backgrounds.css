@@ -1,0 +1,64 @@
+/* ☀ Sunny */
+.bg-sunny {
+  background: url('/weather-gifs/sunny.gif') center/cover no-repeat;
+  position: relative;
+}
+.bg-sunny::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.35);
+}
+
+/* ☁ Cloudy */
+.bg-cloudy {
+  background: url('/weather-gifs/clouds.gif') center/cover no-repeat;
+  position: relative;
+}
+.bg-cloudy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.40);
+}
+
+/* 🌧 Rainy */
+.bg-rainy {
+  background: url('/weather-gifs/rain.gif') center/cover no-repeat;
+  position: relative;
+}
+.bg-rainy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.45);
+}
+
+/* 🌨 Snow */
+.bg-snow {
+  background: url('/weather-gifs/snow.gif') center/cover no-repeat;
+  position: relative;
+}
+.bg-snow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.40);
+}
+
+/* ⛈ Storm */
+.bg-storm {
+  background: url('/weather-gifs/storm.gif') center/cover no-repeat;
+  position: relative;
+}
+.bg-storm::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.50);
+}

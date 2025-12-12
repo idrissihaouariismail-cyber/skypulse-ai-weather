@@ -1,0 +1,7 @@
+{
+  "name": "SkyPulse AI Weather",
+  "description": "An intelligent weather dashboard that provides real-time weather data, 7-day forecasts, air quality analysis, and an interactive radar map, all powered by Gemini.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
