@@ -371,8 +371,8 @@ export default function RadarMap({ location, onClose }: Props) {
         </MapContainer>
       </div>
 
-      {/* Search bar - 35% smaller, moved upward by ~20px */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-lg">
+      {/* Search bar - aligned to the right of close button, same vertical level */}
+      <div className="absolute top-4 left-[72px] right-4 z-30" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <form onSubmit={handleSearch}>
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-lg border border-white/20 shadow-xl">
             <span className="text-white/90 text-sm">🔍</span>
@@ -498,9 +498,9 @@ export default function RadarMap({ location, onClose }: Props) {
         <span className="label label-extreme">Extreme</span>
       </div>
 
-      {/* Bottom layer selector bar - 35% smaller, moved upward 30px with increased padding for mobile */}
-      <div className="absolute inset-x-3 bottom-10 z-30" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/60 backdrop-blur-lg border border-white/20 shadow-xl mt-1">
+      {/* Bottom layer selector bar - moved upward additional 25px with increased padding for mobile */}
+      <div className="absolute inset-x-3 bottom-16 z-30" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-black/60 backdrop-blur-lg border border-white/20 shadow-xl">
           <button
             onClick={() => handleLayerChange("radar")}
             className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
