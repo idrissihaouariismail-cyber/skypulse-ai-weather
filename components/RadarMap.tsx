@@ -1,6 +1,6 @@
 // src/components/RadarMap.tsx
 import React, { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import CloseButton from "./CloseButton";
@@ -20,16 +20,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-// Component to handle map updates
-function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [map, center, zoom]);
-  
-  return null;
-}
+// Default view constants
+const DEFAULT_CENTER: [number, number] = [30, 0]; // North Africa + Europe view
+const DEFAULT_ZOOM = 4;
+const MIN_ZOOM = 2;
+const MAX_ZOOM = 12;
 
 // Component to get map instance and store it in ref
 function MapInstance({ mapRef }: { mapRef: React.MutableRefObject<L.Map | null> }) {
@@ -42,27 +37,29 @@ function MapInstance({ mapRef }: { mapRef: React.MutableRefObject<L.Map | null> 
   return null;
 }
 
-// Component to handle location updates from coordinates
-function MapController({ coordinates }: { coordinates: [number, number] | null }) {
+// Component to handle location marker (centers marker but keeps zoom at 4)
+function LocationMarker({ coordinates }: { coordinates: [number, number] | null }) {
   const map = useMap();
   
   useEffect(() => {
-    if (coordinates) {
-      map.setView(coordinates, map.getZoom());
+    if (coordinates && map) {
+      // Center the map on coordinates but keep zoom at 4
+      map.setView(coordinates, DEFAULT_ZOOM, {
+        animate: true,
+        duration: 0.15,
+      });
     }
   }, [coordinates, map]);
   
-  return null;
+  if (!coordinates) return null;
+  
+  return <Marker position={coordinates} />;
 }
 
 /**
- * WeatherLayerManager - OpenWeatherMap tile layers only
- * 
- * All weather layers use OpenWeatherMap tiles:
- * - Radar/Precipitation: precipitation_new
- * - Clouds: clouds_new
- * - Wind: wind_new
- * - Temperature: temp_new
+ * WeatherLayerManager - OpenWeatherMap tile layers
+ * Opacity: 0.65 for all layers
+ * Smooth transitions max 150ms
  */
 function WeatherLayerManager({ 
   layerType,
@@ -109,19 +106,16 @@ function WeatherLayerManager({
       `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${apiKey}`;
 
     /**
-     * Add tile layer with smooth fade-in animation
-     * Configured for optimal visibility at all zoom levels (2-12)
+     * Add tile layer with opacity 0.65 and smooth transition
      */
-    const addLayerWithFade = (url: string, attribution: string) => {
-      console.log("Adding weather layer", { layerType, url });
-      
+    const addLayer = (url: string, attribution: string) => {
       const newLayer = L.tileLayer(url, {
         attribution,
         pane: paneName,
-        opacity: 0,
+        opacity: 0.65,
         zIndex: 900,
-        maxZoom: 12,
-        minZoom: 2,
+        maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
         tileSize: 256,
         detectRetina: true,
         updateWhenZooming: true,
@@ -134,47 +128,34 @@ function WeatherLayerManager({
 
       newLayer.addTo(map);
       layerRef.current = newLayer;
-
-      // Smooth fade-in animation (0 → target opacity in ~200ms)
-      let opacity = 0;
-      const targetOpacity = layerType === "radar" ? 0.85 : 0.9;
-      const fadeInterval = setInterval(() => {
-        opacity += 0.15;
-        if (opacity >= targetOpacity) {
-          opacity = targetOpacity;
-          clearInterval(fadeInterval);
-        }
-        newLayer.setOpacity(opacity);
-      }, 30);
     };
 
     /**
      * Load appropriate layer based on selectedLayer type
-     * All layers use OpenWeatherMap tiles
      */
     const loadLayer = () => {
       if (layerType === "radar" || layerType === "precipitation") {
-        addLayerWithFade(getOWMPrecipUrl(), "OpenWeatherMap");
+        addLayer(getOWMPrecipUrl(), "OpenWeatherMap");
         return;
       }
 
       if (layerType === "clouds") {
-        addLayerWithFade(getOWMCloudsUrl(), "OpenWeatherMap");
+        addLayer(getOWMCloudsUrl(), "OpenWeatherMap");
         return;
       }
 
       if (layerType === "wind") {
-        addLayerWithFade(getOWMWindUrl(), "OpenWeatherMap");
+        addLayer(getOWMWindUrl(), "OpenWeatherMap");
         return;
       }
 
       if (layerType === "temperature") {
-        addLayerWithFade(getOWMTempUrl(), "OpenWeatherMap");
+        addLayer(getOWMTempUrl(), "OpenWeatherMap");
         return;
       }
 
       // Default fallback
-      addLayerWithFade(getOWMPrecipUrl(), "OpenWeatherMap");
+      addLayer(getOWMPrecipUrl(), "OpenWeatherMap");
     };
 
     loadLayer();
@@ -193,18 +174,13 @@ function WeatherLayerManager({
 
 export default function RadarMap({ location, onClose }: Props) {
   const { t } = useLanguage();
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // Default: San Francisco
-  const [zoom, setZoom] = useState(9);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [searchInput, setSearchInput] = useState("");
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [selectedLayer, setSelectedLayer] = useState<string>("radar");
   const [tileVersion, setTileVersion] = useState<number>(0);
-  const [legendOpacity, setLegendOpacity] = useState<number>(1);
-  // UI state for play/pause buttons (kept for UI consistency, no animation functionality)
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [animationSpeed, setAnimationSpeed] = useState<number>(600);
-  const [speedLabel, setSpeedLabel] = useState<string | null>(null);
-  const speedLabelTimer = useRef<NodeJS.Timeout | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
   // Convert location string to coordinates (handles both "lat,lon" and city names)
@@ -224,8 +200,15 @@ export default function RadarMap({ location, onClose }: Props) {
         const lon = parseFloat(latLonMatch[3]);
         if (!isNaN(lat) && !isNaN(lon)) {
           const coords: [number, number] = [lat, lon];
-          setMapCenter(coords);
           setCoordinates(coords);
+          setMapCenter(coords);
+          // Keep zoom at 4, only center changes
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setView(coords, DEFAULT_ZOOM, {
+              animate: true,
+              duration: 0.15,
+            });
+          }
           return;
         }
       }
@@ -235,8 +218,15 @@ export default function RadarMap({ location, onClose }: Props) {
         const coords = await getCoordinates(location);
         if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
           const newCoords: [number, number] = [coords.lat, coords.lon];
-          setMapCenter(newCoords);
           setCoordinates(newCoords);
+          setMapCenter(newCoords);
+          // Keep zoom at 4, only center changes
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setView(newCoords, DEFAULT_ZOOM, {
+              animate: true,
+              duration: 0.15,
+            });
+          }
           // Update search input with the found location name if it's a city name
           if (coords.name && !latLonMatch) {
             setSearchInput(coords.name);
@@ -265,6 +255,26 @@ export default function RadarMap({ location, onClose }: Props) {
     }
   };
 
+  // Reset view button - fitBounds to Europe + North Africa
+  const handleResetView = () => {
+    if (mapInstanceRef.current) {
+      // Fit bounds: [[60, -30], [10, 40]]
+      const bounds: L.LatLngBoundsExpression = [[10, -30], [60, 40]];
+      mapInstanceRef.current.fitBounds(bounds, {
+        padding: [20, 20],
+        maxZoom: MAX_ZOOM,
+        animate: true,
+        duration: 0.15,
+      });
+      const newZoom = mapInstanceRef.current.getZoom();
+      setZoom(newZoom);
+      const newCenter = mapInstanceRef.current.getCenter();
+      if (newCenter) {
+        setMapCenter([newCenter.lat, newCenter.lng]);
+      }
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchInput.trim()) return;
@@ -273,12 +283,14 @@ export default function RadarMap({ location, onClose }: Props) {
       const coords = await getCoordinates(searchInput.trim());
       if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
         const newCoords: [number, number] = [coords.lat, coords.lon];
-        setMapCenter(newCoords);
         setCoordinates(newCoords);
-        const targetZoom = selectedLayer === "radar" ? 10 : 9;
-        setZoom(targetZoom);
+        setMapCenter(newCoords);
+        // Keep zoom at 4
         if (mapInstanceRef.current) {
-          mapInstanceRef.current.setView(newCoords, targetZoom);
+          mapInstanceRef.current.setView(newCoords, DEFAULT_ZOOM, {
+            animate: true,
+            duration: 0.15,
+          });
         }
       } else {
         console.warn("Location not found:", searchInput);
@@ -293,11 +305,13 @@ export default function RadarMap({ location, onClose }: Props) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const newCenter: [number, number] = [position.coords.latitude, position.coords.longitude];
-          setMapCenter(newCenter);
           setCoordinates(newCenter);
-          const targetZoom = selectedLayer === "radar" ? 10 : 9;
-          setZoom(targetZoom);
-          mapInstanceRef.current?.setView(newCenter, targetZoom);
+          setMapCenter(newCenter);
+          // Keep zoom at 4, only center changes
+          mapInstanceRef.current?.setView(newCenter, DEFAULT_ZOOM, {
+            animate: true,
+            duration: 0.15,
+          });
         },
         () => {
           console.warn("Geolocation denied");
@@ -307,75 +321,16 @@ export default function RadarMap({ location, onClose }: Props) {
   };
 
   const handleLayerChange = (layerType: string) => {
-    setLegendOpacity(0);
-    setTimeout(() => {
-      setSelectedLayer(layerType);
-      setLegendOpacity(1);
-      setTileVersion((v) => v + 1);
-    }, 150);
+    setSelectedLayer(layerType);
+    setTileVersion((v) => v + 1);
   };
 
   const handleRefresh = () => {
     setTileVersion((v) => v + 1);
   };
 
-  // Stub handlers for play/pause and speed buttons (UI kept, no animation functionality)
-  const handleSpeedCycle = () => {
-    const speeds = [
-      { label: "1x", value: 600 },
-      { label: "2x", value: 350 },
-      { label: "4x", value: 150 },
-    ];
-    const currentIndex = speeds.findIndex((s) => s.value === animationSpeed);
-    const next = speeds[(currentIndex + 1) % speeds.length];
-    setAnimationSpeed(next.value);
-    setSpeedLabel(`Speed: ${next.label}`);
-    if (speedLabelTimer.current) clearTimeout(speedLabelTimer.current);
-    speedLabelTimer.current = setTimeout(() => setSpeedLabel(null), 1500);
-  };
-
-  // Cleanup speed label timer
-  useEffect(() => {
-    return () => {
-      if (speedLabelTimer.current) clearTimeout(speedLabelTimer.current);
-    };
-  }, []);
-
-  // Legend configuration based on selected layer
-  const getLegendConfig = () => {
-    switch (selectedLayer) {
-      case "radar":
-        return {
-          gradient: "linear-gradient(to right, #00A8FF, #0050FF, #7800FF, #C800FF, #FF0000)",
-          labels: ["Light", "Moderate", "Heavy", "Intense", "Extreme"],
-        };
-      case "clouds":
-        return {
-          gradient: "linear-gradient(to right, #888, #BBB, #EEE, #FFF)",
-          labels: ["Low", "Medium", "Thick", "Dense"],
-        };
-      case "wind":
-        return {
-          gradient: "linear-gradient(to right, #00FFAA, #00CC88, #008866, #004433)",
-          labels: ["Breeze", "Moderate", "Strong", "Severe"],
-        };
-      case "temperature":
-        return {
-          gradient: "linear-gradient(to right, #0000FF, #00FFFF, #00FF00, #FFFF00, #FF0000)",
-          labels: ["Cold", "Cool", "Mild", "Warm", "Hot"],
-        };
-      default:
-        return {
-          gradient: "linear-gradient(to right, #00A8FF, #0050FF, #7800FF, #C800FF, #FF0000)",
-          labels: ["Light", "Moderate", "Heavy", "Intense", "Extreme"],
-        };
-    }
-  };
-
-  const legendConfig = getLegendConfig();
-
   return (
-    <div className="relative pt-16 px-6 min-h-screen bg-sky-300 text-white overflow-hidden">
+    <div className="relative pt-16 px-4 min-h-screen bg-sky-300 text-white overflow-hidden">
       <CloseButton onClose={onClose} />
       
       {/* Map container */}
@@ -383,9 +338,15 @@ export default function RadarMap({ location, onClose }: Props) {
         <MapContainer
           center={mapCenter}
           zoom={zoom}
+          minZoom={MIN_ZOOM}
+          maxZoom={MAX_ZOOM}
           style={{ height: "100%", width: "100%", zIndex: 0 }}
           zoomControl={false}
           attributionControl={false}
+          fadeAnimation={true}
+          zoomAnimation={true}
+          zoomAnimationThreshold={4}
+          markerZoomAnimation={false}
         >
           {/* Base map layer */}
           <TileLayer
@@ -393,35 +354,38 @@ export default function RadarMap({ location, onClose }: Props) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             opacity={0.5}
             zIndex={200}
+            minZoom={MIN_ZOOM}
+            maxZoom={MAX_ZOOM}
           />
           
-          {/* Dynamic weather layer - managed by WeatherLayerManager */}
+          {/* Dynamic weather layer */}
           <WeatherLayerManager 
             layerType={selectedLayer}
             tileVersion={tileVersion}
           />
           
+          {/* Location marker */}
+          <LocationMarker coordinates={coordinates} />
+          
           <MapInstance mapRef={mapInstanceRef} />
-          <MapUpdater center={mapCenter} zoom={zoom} />
-          <MapController coordinates={coordinates} />
         </MapContainer>
       </div>
 
-      {/* Search bar */}
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-xl">
+      {/* Search bar - 35% smaller */}
+      <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-lg">
         <form onSubmit={handleSearch}>
-          <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl">
-            <span className="text-white/90 text-xl">🔍</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-lg border border-white/20 shadow-xl">
+            <span className="text-white/90 text-sm">🔍</span>
             <input
               type="text"
               placeholder={t("search")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="flex-1 bg-transparent placeholder-white/70 text-white text-base font-medium outline-none"
+              className="flex-1 bg-transparent placeholder-white/70 text-white text-xs font-medium outline-none"
             />
             <button 
               type="submit" 
-              className="px-4 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-sm font-semibold transition"
+              className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white text-[10px] font-semibold transition"
             >
               {t("search").replace("...", "")}
             </button>
@@ -429,69 +393,66 @@ export default function RadarMap({ location, onClose }: Props) {
         </form>
       </div>
 
-      {/* Zoom + Locate + Frame controls stack */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col items-center gap-3">
-        <div className="flex flex-col items-center gap-3 bg-black/40 backdrop-blur-md rounded-full px-2 py-3 shadow-lg border border-white/10">
+      {/* Zoom controls + Reset View + Locate + Play - 35% smaller */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-3 z-40 flex flex-col items-center gap-1.5">
+        <div className="flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-1 py-1.5 shadow-lg border border-white/10">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 text-white text-2xl leading-none hover:bg-white/25 transition z-50"
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/15 text-white text-sm leading-none hover:bg-white/25 transition z-50"
+            title="Zoom in"
           >
             +
           </button>
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 text-white text-2xl leading-none hover:bg-white/25 transition z-50"
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/15 text-white text-sm leading-none hover:bg-white/25 transition z-50"
+            title="Zoom out"
           >
             –
+          </button>
+          <button
+            onClick={handleResetView}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/15 text-white text-[10px] leading-none hover:bg-white/25 transition z-50"
+            title="Reset view"
+          >
+            ⌂
           </button>
         </div>
         <button
           onClick={handleLocate}
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-md text-white text-xl shadow-lg border border-white/10 hover:bg-black/60 transition z-50"
+          className="w-7 h-7 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-md text-white text-sm shadow-lg border border-white/10 hover:bg-black/60 transition z-50"
+          title="Locate me"
         >
           📍
         </button>
         <button
           onClick={() => setIsPlaying((p) => !p)}
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-black/45 backdrop-blur-md text-white text-lg leading-none hover:bg-black/60 transition border border-white/15 shadow-lg"
-          aria-label="Play/Pause frames"
+          className="w-7 h-7 flex items-center justify-center rounded-full bg-black/45 backdrop-blur-md text-white text-xs leading-none hover:bg-black/60 transition border border-white/15 shadow-lg"
+          aria-label="Play/Pause"
+          title="Play/Pause"
         >
           {isPlaying ? "⏸" : "▶"}
         </button>
-        <div className="relative">
-          <button
-            onClick={handleSpeedCycle}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-black/45 backdrop-blur-md text-white text-lg leading-none hover:bg-black/60 transition border border-white/15 shadow-lg"
-            aria-label="Change speed"
-          >
-            ⚡
-          </button>
-          {speedLabel && (
-            <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-white text-xs font-semibold shadow-lg transition-opacity duration-300">
-              {speedLabel}
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="absolute inset-x-6 bottom-32 z-30">
-        <button className="w-full bg-cyan-500 text-black font-semibold text-lg rounded-full py-4 shadow-xl flex items-center justify-center gap-2 hover:bg-cyan-400 transition">
+      {/* Bottom CTA - 35% smaller */}
+      <div className="absolute inset-x-3 bottom-20 z-30">
+        <button className="w-full bg-cyan-500 text-black font-semibold text-xs rounded-full py-2 shadow-xl flex items-center justify-center gap-1 hover:bg-cyan-400 transition">
           <span>Explain this pattern</span>
-          <span className="text-xl">🤖</span>
+          <span className="text-sm">🤖</span>
         </button>
       </div>
 
-      {/* Radar Legend */}
+      {/* Radar Legend - 35% smaller, narrow, left-aligned */}
       <style>
         {`
           .radar-legend {
             position: absolute !important;
-            top: 150px !important;
-            left: 24px !important;
+            top: 140px !important;
+            left: 12px !important;
             z-index: 900 !important;
-            width: 36px !important;
-            height: 360px !important;
+            width: 20px !important;
+            height: 200px !important;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -499,7 +460,7 @@ export default function RadarMap({ location, onClose }: Props) {
           .radar-legend .bar {
             width: 100% !important;
             height: 100% !important;
-            border-radius: 20px;
+            border-radius: 12px;
             background: linear-gradient(
               to bottom,
               #1e90ff,
@@ -513,11 +474,11 @@ export default function RadarMap({ location, onClose }: Props) {
           }
           .radar-legend .label {
             position: absolute;
-            left: 50px;
-            font-size: 16px;
+            left: 28px;
+            font-size: 9px;
             font-weight: 600;
             color: white;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.2px;
             text-shadow: 0px 2px 4px rgba(0,0,0,0.9);
             transform: translateY(-45%);
           }
@@ -537,67 +498,67 @@ export default function RadarMap({ location, onClose }: Props) {
         <span className="label label-extreme">Extreme</span>
       </div>
 
-      {/* Bottom layer selector bar */}
-      <div className="absolute inset-x-6 bottom-8 z-30">
-        <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-black/60 backdrop-blur-lg border border-white/20 shadow-2xl">
+      {/* Bottom layer selector bar - 35% smaller, clean */}
+      <div className="absolute inset-x-3 bottom-4 z-30">
+        <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-black/60 backdrop-blur-lg border border-white/20 shadow-xl">
           <button
             onClick={() => handleLayerChange("radar")}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
               selectedLayer === "radar" 
                 ? "bg-white/20 scale-105" 
                 : "hover:bg-white/10"
             }`}
-            title="Precipitation Radar"
+            title="Radar"
           >
-            <span className="text-2xl">🌧</span>
-            <span className="text-[10px] font-medium text-white/90">Radar</span>
+            <span className="text-sm">🌧</span>
+            <span className="text-[7px] font-medium text-white/90">Radar</span>
           </button>
           <button
             onClick={() => handleLayerChange("clouds")}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
               selectedLayer === "clouds" 
                 ? "bg-white/20 scale-105" 
                 : "hover:bg-white/10"
             }`}
-            title="Cloud Cover"
+            title="Clouds"
           >
-            <span className="text-2xl">☁️</span>
-            <span className="text-[10px] font-medium text-white/90">Clouds</span>
+            <span className="text-sm">☁️</span>
+            <span className="text-[7px] font-medium text-white/90">Clouds</span>
           </button>
           <button
             onClick={() => handleLayerChange("wind")}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
               selectedLayer === "wind" 
                 ? "bg-white/20 scale-105" 
                 : "hover:bg-white/10"
             }`}
-            title="Wind Speeds"
+            title="Wind"
           >
-            <span className="text-2xl">💨</span>
-            <span className="text-[10px] font-medium text-white/90">Wind</span>
+            <span className="text-sm">💨</span>
+            <span className="text-[7px] font-medium text-white/90">Wind</span>
           </button>
           <button
             onClick={() => handleLayerChange("temperature")}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
               selectedLayer === "temperature" 
                 ? "bg-white/20 scale-105" 
                 : "hover:bg-white/10"
             }`}
             title="Temperature"
           >
-            <span className="text-2xl">🌡️</span>
-            <span className="text-[10px] font-medium text-white/90">Temp</span>
+            <span className="text-sm">🌡️</span>
+            <span className="text-[7px] font-medium text-white/90">Temp</span>
           </button>
           <button
             onClick={handleRefresh}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition hover:bg-white/10`}
-            title="Refresh Radar"
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition hover:bg-white/10`}
+            title="Refresh"
           >
-            <span className="text-2xl">🔄</span>
-            <span className="text-[10px] font-medium text-white/90">Refresh</span>
+            <span className="text-sm">🔄</span>
+            <span className="text-[7px] font-medium text-white/90">Refresh</span>
           </button>
         </div>
       </div>
-    </div>
-  );
+    </div>
+  );
 }
