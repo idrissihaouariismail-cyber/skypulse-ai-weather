@@ -435,8 +435,8 @@ export default function RadarMap({ location, onClose }: Props) {
         </button>
       </div>
 
-      {/* Bottom CTA - 35% smaller, adjusted for mobile spacing */}
-      <div className="absolute inset-x-3 bottom-28 z-30">
+      {/* Bottom CTA - moved upward 24px to sit above navigation bar with 16px+ spacing */}
+      <div className="absolute inset-x-3 bottom-22 z-30">
         <button className="w-full bg-cyan-500 text-black font-semibold text-xs rounded-full py-2 shadow-xl flex items-center justify-center gap-1 hover:bg-cyan-400 transition">
           <span>Explain this pattern</span>
           <span className="text-sm">🤖</span>
