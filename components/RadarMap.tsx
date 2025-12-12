@@ -371,8 +371,8 @@ export default function RadarMap({ location, onClose }: Props) {
         </MapContainer>
       </div>
 
-      {/* Search bar - 35% smaller */}
-      <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-lg">
+      {/* Search bar - 35% smaller, moved upward by ~20px */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-lg">
         <form onSubmit={handleSearch}>
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-lg border border-white/20 shadow-xl">
             <span className="text-white/90 text-sm">🔍</span>
@@ -435,8 +435,8 @@ export default function RadarMap({ location, onClose }: Props) {
         </button>
       </div>
 
-      {/* Bottom CTA - 35% smaller */}
-      <div className="absolute inset-x-3 bottom-20 z-30">
+      {/* Bottom CTA - 35% smaller, adjusted for mobile spacing */}
+      <div className="absolute inset-x-3 bottom-28 z-30">
         <button className="w-full bg-cyan-500 text-black font-semibold text-xs rounded-full py-2 shadow-xl flex items-center justify-center gap-1 hover:bg-cyan-400 transition">
           <span>Explain this pattern</span>
           <span className="text-sm">🤖</span>
@@ -498,9 +498,9 @@ export default function RadarMap({ location, onClose }: Props) {
         <span className="label label-extreme">Extreme</span>
       </div>
 
-      {/* Bottom layer selector bar - 35% smaller, clean */}
-      <div className="absolute inset-x-3 bottom-4 z-30">
-        <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-black/60 backdrop-blur-lg border border-white/20 shadow-xl">
+      {/* Bottom layer selector bar - 35% smaller, moved upward 30px with increased padding for mobile */}
+      <div className="absolute inset-x-3 bottom-10 z-30" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/60 backdrop-blur-lg border border-white/20 shadow-xl mt-1">
           <button
             onClick={() => handleLayerChange("radar")}
             className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition ${
