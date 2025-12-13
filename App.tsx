@@ -63,7 +63,6 @@ export default function App() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [locationDenied, setLocationDenied] = useState<boolean>(false);
   const [detectingLocation, setDetectingLocation] = useState<boolean>(true);
 
   const [activeView, setActiveView] = useState<typeof NAV_VIEWS[0]>(NAV_VIEWS[0]);
@@ -97,7 +96,7 @@ export default function App() {
     }
   }, []);
 
-  // Auto-detect location on first load
+  // Auto-detect location on first load - silent fallback if denied
   useEffect(() => {
     let mounted = true;
     
@@ -110,12 +109,10 @@ export default function App() {
       setDetectingLocation(false);
       
       if (userLocation) {
-        // Use coordinates directly
+        // Use coordinates directly if permission granted
         setCurrentLocation(`${userLocation.lat},${userLocation.lon}`);
-        setLocationDenied(false);
       } else {
-        // Fallback to default location
-        setLocationDenied(true);
+        // Silently fallback to default location if permission denied
         setCurrentLocation(DEFAULT_LOCATION);
       }
     };
@@ -213,29 +210,12 @@ export default function App() {
     switch (activeView.id) {
       case "dashboard":
         return (
-          <>
-            {locationDenied && (
-              <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-md">
-                <div className="bg-amber-500/90 backdrop-blur-md rounded-lg px-4 py-3 text-white text-sm text-center shadow-lg">
-                  {(() => {
-                    const lang = settings.language === "auto" ? detectedLanguage : settings.language;
-                    const messages: Record<string, string> = {
-                      en: "Unable to detect your location, please use search.",
-                      fr: "Impossible de détecter votre position, veuillez utiliser la recherche.",
-                      ar: "تعذر تحديد موقعك، الرجاء استخدام البحث.",
-                    };
-                    return messages[lang] || messages.en;
-                  })()}
-                </div>
-              </div>
-            )}
-            <Dashboard
-              weatherData={weatherData}
-              settings={settings}
-              goTo={setActiveView}
-              onSearch={handleSearch}
-            />
-          </>
+          <Dashboard
+            weatherData={weatherData}
+            settings={settings}
+            goTo={setActiveView}
+            onSearch={handleSearch}
+          />
         );
       case "forecast":
         return (
