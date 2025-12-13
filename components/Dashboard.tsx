@@ -9,6 +9,7 @@ import Hourly48Forecast from "./Hourly48Forecast";
 import WeatherIcon from "./WeatherIcon";
 import { useLanguage } from "../src/context/LanguageContext";
 import { formatDashboardDate, formatDayOfWeek } from "../src/utils/date";
+import SunriseSunsetCard from "./SunriseSunsetCard";
 
 interface Props {
   weatherData: WeatherData;
@@ -399,6 +400,12 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
         <MetricCard title={t("pressure")} value={pressure} />
         <MetricCard title={t("uv")} value={uvIndex} />
       </div>
+
+      {/* SUNRISE & SUNSET - Semi-circle card */}
+      <SunriseSunsetCard
+        sunrise={current.sunrise}
+        sunset={current.sunset}
+      />
 
       {/* AIR QUALITY - Gold colored with more information */}
       <div className="mt-6 px-4">
