@@ -100,7 +100,8 @@ function translateCondition(condition: string | undefined, t: (key: string) => s
 
 // Helper: Generate detailed AI insight (fully localized using i18n keys)
 // Analyzes conditions and combines multiple contextual insights
-function generateAIInsight(current: any, temp: number, unit: string, language: string, t: (key: string) => string): string {
+// selectedInterest: "general" | "driving" | "travel" | "sports" | "fishing" | "sea" | "health" | "agriculture"
+function generateAIInsight(current: any, temp: number, unit: string, language: string, t: (key: string) => string, selectedInterest: string = "general"): string {
   const condition = current.condition?.toLowerCase() || "";
   const wind = current.windSpeed ?? 0;
   const uv = current.uvIndex ?? 0;
@@ -110,32 +111,47 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
   const hour = now.getHours();
 
   const insights: string[] = [];
+  const insightsByCategory: { [key: string]: string[] } = {
+    general: [],
+    driving: [],
+    travel: [],
+    sports: [],
+    fishing: [],
+    sea: [],
+    health: [],
+    agriculture: [],
+  };
 
   // 1. GENERAL CONDITION-BASED INSIGHT
+  let generalCondition = "";
   if (condition.includes("clear") && !condition.includes("cloud")) {
-    insights.push(t("ai.clear.general"));
+    generalCondition = t("ai.clear.general");
   } else if (condition.includes("partly") || condition.includes("partially")) {
-    insights.push(t("ai.partly_cloudy.general"));
+    generalCondition = t("ai.partly_cloudy.general");
   } else if (condition.includes("cloudy") || condition.includes("overcast")) {
-    insights.push(t("ai.cloudy.general"));
+    generalCondition = t("ai.cloudy.general");
   } else if (condition.includes("heavy rain") || condition.includes("heavy rain")) {
-    insights.push(t("ai.heavy_rain.general"));
+    generalCondition = t("ai.heavy_rain.general");
   } else if (condition.includes("light rain") || condition.includes("drizzle")) {
-    insights.push(t("ai.light_rain.general"));
+    generalCondition = t("ai.light_rain.general");
   } else if (condition.includes("rain")) {
-    insights.push(t("ai.rain.general"));
+    generalCondition = t("ai.rain.general");
   } else if (condition.includes("heavy snow")) {
-    insights.push(t("ai.heavy_snow.general"));
+    generalCondition = t("ai.heavy_snow.general");
   } else if (condition.includes("snow")) {
-    insights.push(t("ai.snow.general"));
+    generalCondition = t("ai.snow.general");
   } else if (condition.includes("thunder") || condition.includes("storm")) {
-    insights.push(t("ai.thunderstorm.general"));
+    generalCondition = t("ai.thunderstorm.general");
   } else if (condition.includes("fog")) {
-    insights.push(t("ai.fog.general"));
+    generalCondition = t("ai.fog.general");
   } else if (condition.includes("mist")) {
-    insights.push(t("ai.mist.general"));
+    generalCondition = t("ai.mist.general");
   } else if (condition.includes("haze")) {
-    insights.push(t("ai.haze.general"));
+    generalCondition = t("ai.haze.general");
+  }
+  if (generalCondition) {
+    insightsByCategory.general.push(generalCondition);
+    insightsByCategory.agriculture.push(generalCondition);
   }
 
   // 2. DRIVING & VISIBILITY ADVICE
@@ -147,136 +163,174 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
   const isWindy = wind >= 30;
 
   if (hasVeryLowVisibility || (isFoggy && visibility === null)) {
-    insights.push(t("ai.driving.low.visibility"));
+    insightsByCategory.driving.push(t("ai.driving.low.visibility"));
   } else if (hasLowVisibility) {
-    insights.push(t("ai.driving.low.visibility"));
+    insightsByCategory.driving.push(t("ai.driving.low.visibility"));
   } else if (!isFoggy && !isRainy && !isSnowy) {
-    insights.push(t("ai.driving.good"));
+    insightsByCategory.driving.push(t("ai.driving.good"));
   }
 
   if (isRainy && condition.includes("heavy")) {
-    insights.push(t("ai.driving.heavy.rain"));
+    insightsByCategory.driving.push(t("ai.driving.heavy.rain"));
   } else if (isRainy || isSnowy) {
-    insights.push(t("ai.driving.slippery"));
+    insightsByCategory.driving.push(t("ai.driving.slippery"));
   }
 
   if (isSnowy) {
-    insights.push(t("ai.driving.snow.ice"));
+    insightsByCategory.driving.push(t("ai.driving.snow.ice"));
   }
 
   if (isWindy) {
-    insights.push(t("ai.driving.windy"));
+    insightsByCategory.driving.push(t("ai.driving.windy"));
   }
 
   // 3. TRAVEL ADVICE (AIR & ROAD)
   const isGoodForTravel = !condition.includes("storm") && !condition.includes("thunder") && wind < 50 && !hasVeryLowVisibility;
   
   if (isGoodForTravel && !isFoggy && !isRainy) {
-    insights.push(t("ai.travel.ok"));
+    insightsByCategory.travel.push(t("ai.travel.ok"));
   } else if (isRainy && condition.includes("heavy")) {
-    insights.push(t("ai.travel.delays_rain"));
+    insightsByCategory.travel.push(t("ai.travel.delays_rain"));
   } else if (isFoggy || hasVeryLowVisibility) {
-    insights.push(t("ai.travel.delays_fog"));
+    insightsByCategory.travel.push(t("ai.travel.delays_fog"));
   } else if (isSnowy) {
-    insights.push(t("ai.travel.delays_snow"));
+    insightsByCategory.travel.push(t("ai.travel.delays_snow"));
   }
 
   if (wind >= 30) {
-    insights.push(t("ai.travel.windy"));
-    insights.push(t("ai.travel.turbulence"));
+    insightsByCategory.travel.push(t("ai.travel.windy"));
+    insightsByCategory.travel.push(t("ai.travel.turbulence"));
   } else if (isGoodForTravel) {
-    insights.push(t("ai.travel.smooth"));
+    insightsByCategory.travel.push(t("ai.travel.smooth"));
   }
 
   // 4. SPORTS ACTIVITIES
   const isGoodForSports = temp >= 5 && temp <= 25 && !isRainy && !condition.includes("storm") && !hasLowVisibility;
   
   if (isGoodForSports) {
-    insights.push(t("ai.sports.perfect"));
+    insightsByCategory.sports.push(t("ai.sports.perfect"));
   } else if (hasLowVisibility || isFoggy) {
-    insights.push(t("ai.sports.low_visibility"));
+    insightsByCategory.sports.push(t("ai.sports.low_visibility"));
   } else if (condition.includes("thunder") || condition.includes("storm")) {
-    insights.push(t("ai.sports.avoid_thunder"));
+    insightsByCategory.sports.push(t("ai.sports.avoid_thunder"));
   } else if (temp > 30) {
-    insights.push(t("ai.sports.heat_warning"));
+    insightsByCategory.sports.push(t("ai.sports.heat_warning"));
   } else if (temp < 5) {
-    insights.push(t("ai.sports.cold_warning"));
+    insightsByCategory.sports.push(t("ai.sports.cold_warning"));
   }
 
   if (isRainy || isSnowy) {
-    insights.push(t("ai.sports.wet_conditions"));
+    insightsByCategory.sports.push(t("ai.sports.wet_conditions"));
   }
 
   if (isWindy) {
-    insights.push(t("ai.sports.windy"));
+    insightsByCategory.sports.push(t("ai.sports.windy"));
   }
 
   // 5. SEA & FISHING CONDITIONS
   if (wind < 20 && !isRainy && !condition.includes("storm")) {
-    insights.push(t("ai.sea.good"));
-    insights.push(t("ai.sea.calm"));
+    insightsByCategory.sea.push(t("ai.sea.good"));
+    insightsByCategory.sea.push(t("ai.sea.calm"));
+    insightsByCategory.fishing.push(t("ai.sea.good"));
+    insightsByCategory.fishing.push(t("ai.sea.calm"));
   } else if (wind >= 30 || condition.includes("storm")) {
-    insights.push(t("ai.sea.rough_sea"));
+    insightsByCategory.sea.push(t("ai.sea.rough_sea"));
+    insightsByCategory.fishing.push(t("ai.sea.rough_sea"));
   } else if (wind >= 20) {
-    insights.push(t("ai.sea.strong_wind"));
-    insights.push(t("ai.sea.moderate"));
+    insightsByCategory.sea.push(t("ai.sea.strong_wind"));
+    insightsByCategory.sea.push(t("ai.sea.moderate"));
+    insightsByCategory.fishing.push(t("ai.sea.strong_wind"));
+    insightsByCategory.fishing.push(t("ai.sea.moderate"));
   }
 
   if (hasLowVisibility || isFoggy) {
-    insights.push(t("ai.sea.poor_visibility"));
+    insightsByCategory.sea.push(t("ai.sea.poor_visibility"));
+    insightsByCategory.fishing.push(t("ai.sea.poor_visibility"));
   }
 
-  // 6. CLOTHING SUGGESTIONS
+  // 6. CLOTHING SUGGESTIONS (for general and agriculture)
   if (temp >= 35) {
-    insights.push(t("ai.clothing.extreme_heat"));
+    insightsByCategory.general.push(t("ai.clothing.extreme_heat"));
+    insightsByCategory.agriculture.push(t("ai.clothing.extreme_heat"));
   } else if (temp >= 30) {
-    insights.push(t("ai.clothing.hot"));
+    insightsByCategory.general.push(t("ai.clothing.hot"));
+    insightsByCategory.agriculture.push(t("ai.clothing.hot"));
   } else if (temp <= -5) {
-    insights.push(t("ai.clothing.freezing"));
+    insightsByCategory.general.push(t("ai.clothing.freezing"));
+    insightsByCategory.agriculture.push(t("ai.clothing.freezing"));
   } else if (temp <= 5) {
-    insights.push(t("ai.clothing.cold"));
+    insightsByCategory.general.push(t("ai.clothing.cold"));
+    insightsByCategory.agriculture.push(t("ai.clothing.cold"));
   }
 
   if (isRainy) {
-    insights.push(t("ai.clothing.rain"));
+    insightsByCategory.general.push(t("ai.clothing.rain"));
+    insightsByCategory.agriculture.push(t("ai.clothing.rain"));
   }
 
   if (isWindy) {
-    insights.push(t("ai.clothing.wind"));
+    insightsByCategory.general.push(t("ai.clothing.wind"));
+    insightsByCategory.agriculture.push(t("ai.clothing.wind"));
   }
 
   // 7. HEALTH WARNINGS
   if (temp >= 35) {
-    insights.push(t("ai.health.heat_extreme"));
+    insightsByCategory.health.push(t("ai.health.heat_extreme"));
   } else if (temp >= 30) {
-    insights.push(t("ai.health.heat_advisory"));
+    insightsByCategory.health.push(t("ai.health.heat_advisory"));
   } else if (temp <= -5) {
-    insights.push(t("ai.health.cold_extreme"));
+    insightsByCategory.health.push(t("ai.health.cold_extreme"));
   } else if (temp <= 0) {
-    insights.push(t("ai.health.cold_freezing"));
+    insightsByCategory.health.push(t("ai.health.cold_freezing"));
   } else if (temp <= 5) {
-    insights.push(t("ai.health.cold_stress"));
+    insightsByCategory.health.push(t("ai.health.cold_stress"));
   }
 
   if (uv >= 8) {
-    insights.push(t("ai.health.uv_very_high"));
+    insightsByCategory.health.push(t("ai.health.uv_very_high"));
+    insightsByCategory.fishing.push(t("ai.health.uv_very_high"));
   } else if (uv >= 6) {
-    insights.push(t("ai.health.uv_high"));
+    insightsByCategory.health.push(t("ai.health.uv_high"));
+    insightsByCategory.fishing.push(t("ai.health.uv_high"));
   } else if (uv >= 3) {
-    insights.push(t("ai.health.uv_moderate"));
+    insightsByCategory.health.push(t("ai.health.uv_moderate"));
   } else if (uv > 0) {
-    insights.push(t("ai.health.uv_low"));
+    insightsByCategory.health.push(t("ai.health.uv_low"));
   }
 
   if (humid >= 80 && temp >= 25) {
-    insights.push(t("ai.health.humidity_high"));
+    insightsByCategory.health.push(t("ai.health.humidity_high"));
+    insightsByCategory.agriculture.push(t("ai.health.humidity_high"));
   } else if (humid >= 70) {
-    insights.push(t("ai.health.humidity_elevated"));
+    insightsByCategory.health.push(t("ai.health.humidity_elevated"));
+    insightsByCategory.agriculture.push(t("ai.health.humidity_elevated"));
   }
 
+  // Get insights for selected interest category
+  let filteredInsights: string[] = [];
+  
+  if (selectedInterest === "general") {
+    // General: Combine all categories, prioritize general condition
+    filteredInsights = [
+      ...insightsByCategory.general,
+      ...insightsByCategory.driving.slice(0, 1),
+      ...insightsByCategory.travel.slice(0, 1),
+      ...insightsByCategory.sports.slice(0, 1),
+      ...insightsByCategory.health.slice(0, 2),
+    ];
+  } else {
+    // Get insights for the selected category
+    filteredInsights = insightsByCategory[selectedInterest] || [];
+    
+    // If no specific insights, add general condition as fallback
+    if (filteredInsights.length === 0 && insightsByCategory.general.length > 0) {
+      filteredInsights = [insightsByCategory.general[0]];
+    }
+  }
+  
   // Remove duplicates and format as readable sentences
   // Filter out any raw keys (keys that start with "ai.") - these indicate missing translations
-  const uniqueInsights = Array.from(new Set(insights))
+  const uniqueInsights = Array.from(new Set(filteredInsights))
     .filter(insight => {
       // Remove empty strings and any raw translation keys (keys that weren't translated)
       const trimmed = insight?.trim() || "";
@@ -305,6 +359,7 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
   const current = weatherData?.current || {};
   const unit = settings.unit;
   const [searchInput, setSearchInput] = useState("");
+  const [selectedInterest, setSelectedInterest] = useState<string>("general");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -326,7 +381,19 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
 
   const aqi = weatherData.airQuality?.aqi ?? null;
   const aqiInfo = getAqiInfo(aqi, t);
-  const aiInsight = generateAIInsight(current, temp, unit === TemperatureUnit.CELSIUS ? "C" : "F", language, t);
+  const aiInsight = generateAIInsight(current, temp, unit === TemperatureUnit.CELSIUS ? "C" : "F", language, t, selectedInterest);
+  
+  // Interest options
+  const interests = [
+    { id: "general", icon: "🌍", label: t("interest.general") },
+    { id: "driving", icon: "🚗", label: t("interest.driving") },
+    { id: "travel", icon: "✈", label: t("interest.travel") },
+    { id: "sports", icon: "🏃", label: t("interest.sports") },
+    { id: "fishing", icon: "🎣", label: t("interest.fishing") },
+    { id: "sea", icon: "🌊", label: t("interest.sea") },
+    { id: "health", icon: "🌬", label: t("interest.health") },
+    { id: "agriculture", icon: "☀", label: t("interest.agriculture") },
+  ];
 
   const forecast = weatherData.forecast?.slice(0, 5) || [];
 
@@ -387,8 +454,39 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
       <div className="mt-6 px-4">
         <div className="bg-gradient-to-br from-amber-600 via-amber-500 to-amber-400 rounded-xl p-5 text-white shadow-lg">
           <div className="font-bold text-lg mb-3">{t("aiInsight")}</div>
-          <div className="text-sm leading-relaxed opacity-95">
+          <div className="text-sm leading-relaxed opacity-95 transition-opacity duration-300">
             {aiInsight}
+          </div>
+        </div>
+        
+        {/* Interest Selector - Horizontal scrollable chips */}
+        <div 
+          className="mt-3 overflow-x-auto" 
+          style={{ 
+            scrollbarWidth: "none", 
+            msOverflowStyle: "none",
+          }}
+        >
+          <style>{`
+            .interest-scroll::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          <div className="flex gap-2 pb-2 interest-scroll">
+            {interests.map((interest) => (
+              <button
+                key={interest.id}
+                onClick={() => setSelectedInterest(interest.id)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-xs whitespace-nowrap transition-all duration-200 shadow-md ${
+                  selectedInterest === interest.id
+                    ? "bg-gradient-to-br from-amber-600 via-amber-500 to-amber-400 text-white scale-105 shadow-lg"
+                    : "bg-gradient-to-br from-amber-500/60 via-amber-400/50 to-amber-300/40 text-white/90 hover:from-amber-500/70 hover:via-amber-400/60 hover:to-amber-300/50 hover:scale-102"
+                }`}
+              >
+                <span className="text-sm">{interest.icon}</span>
+                <span>{interest.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>

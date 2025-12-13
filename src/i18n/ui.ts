@@ -143,6 +143,16 @@ export const UI_TEXT = {
     // AI Insight
     aiInsight: "AI Insight",
     
+    // AI Insight Interests
+    "interest.general": "General",
+    "interest.driving": "Driving & Road",
+    "interest.travel": "Travel",
+    "interest.sports": "Sports & Outdoor",
+    "interest.fishing": "Fishing",
+    "interest.sea": "Sea & Boats",
+    "interest.health": "Health & Air",
+    "interest.agriculture": "Agriculture",
+    
     // AI Insight - General Conditions
     "ai.clear.general": "Clear skies with excellent visibility. Perfect weather for outdoor activities.",
     "ai.partly_cloudy.general": "Partly cloudy conditions. Pleasant weather with occasional cloud cover.",
@@ -371,6 +381,16 @@ export const UI_TEXT = {
     
     // AI Insight
     aiInsight: "Analyse IA",
+    
+    // AI Insight Interests
+    "interest.general": "Général",
+    "interest.driving": "Conduite & Route",
+    "interest.travel": "Voyage",
+    "interest.sports": "Sport & Plein Air",
+    "interest.fishing": "Pêche",
+    "interest.sea": "Mer & Bateaux",
+    "interest.health": "Santé & Air",
+    "interest.agriculture": "Agriculture",
     
     // AI Insight - General Conditions
     "ai.clear.general": "Ciel dégagé avec une excellente visibilité. Temps parfait pour les activités en plein air.",
@@ -601,6 +621,16 @@ export const UI_TEXT = {
     // AI Insight
     aiInsight: "تحليل ذكي",
     
+    // AI Insight Interests
+    "interest.general": "عام",
+    "interest.driving": "القيادة والطريق",
+    "interest.travel": "السفر",
+    "interest.sports": "الرياضة والهواء الطلق",
+    "interest.fishing": "الصيد",
+    "interest.sea": "البحر والقوارب",
+    "interest.health": "الصحة والهواء",
+    "interest.agriculture": "الزراعة",
+    
     // AI Insight - General Conditions
     "ai.clear.general": "سماء صافية مع رؤية ممتازة. طقس مثالي للأنشطة الخارجية.",
     "ai.partly_cloudy.general": "ظروف غائمة جزئياً. طقس لطيف مع غطاء سحابي عرضي.",
@@ -828,6 +858,16 @@ export const UI_TEXT = {
     
     // AI Insight
     aiInsight: "Análisis IA",
+    
+    // AI Insight Interests
+    "interest.general": "General",
+    "interest.driving": "Conducción y Carretera",
+    "interest.travel": "Viaje",
+    "interest.sports": "Deportes y Aire Libre",
+    "interest.fishing": "Pesca",
+    "interest.sea": "Mar y Barcos",
+    "interest.health": "Salud y Aire",
+    "interest.agriculture": "Agricultura",
     
     // AI Insight - General Conditions
     "ai.clear.general": "Cielos despejados con excelente visibilidad. Clima perfecto para actividades al aire libre.",
