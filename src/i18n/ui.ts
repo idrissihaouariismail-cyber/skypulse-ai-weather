@@ -19,6 +19,7 @@ export const UI_TEXT = {
     feelsLike: "Feels like",
     sunrise: "Sunrise",
     sunset: "Sunset",
+    dayLength: "Day length",
     
     // Forecast
     dayForecast: "5-Day Forecast",
@@ -247,6 +248,7 @@ export const UI_TEXT = {
     feelsLike: "Ressenti",
     sunrise: "Lever du soleil",
     sunset: "Coucher du soleil",
+    dayLength: "Durée du jour",
     
     // Forecast
     dayForecast: "Prévisions sur 5 jours",
@@ -475,6 +477,7 @@ export const UI_TEXT = {
     feelsLike: "يشعر بـ",
     sunrise: "شروق الشمس",
     sunset: "غروب الشمس",
+    dayLength: "طول النهار",
     
     // Forecast
     dayForecast: "التنبؤ لمدة 5 أيام",
@@ -703,6 +706,7 @@ export const UI_TEXT = {
     feelsLike: "Sensación térmica",
     sunrise: "Amanecer",
     sunset: "Atardecer",
+    dayLength: "Duración del día",
     
     // Forecast
     dayForecast: "Pronóstico de 5 días",
