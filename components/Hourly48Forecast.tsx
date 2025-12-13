@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import WeatherIcon from "./WeatherIcon";
 import { TemperatureUnit } from "../types";
 import { useLanguage } from "../src/context/LanguageContext";
@@ -18,8 +18,9 @@ interface Props {
 export default function Hourly48Forecast({ data, unit }: Props) {
   const { t, language } = useLanguage();
   
-  // Helper: Translate condition
-  const translateCondition = (condition: string): string => {
+  // Helper: Translate condition (memoized to prevent recreation)
+  const translateCondition = React.useCallback((condition: string): string => {
+    if (!condition || typeof condition !== 'string') return t("clear");
     const lower = condition.toLowerCase();
     if (lower.includes("clear") || lower.includes("sunny")) return t("clear");
     if (lower.includes("partly") || lower.includes("partially")) return t("partly_cloudy");
@@ -34,10 +35,31 @@ export default function Hourly48Forecast({ data, unit }: Props) {
     if (lower.includes("haze")) return t("haze");
     if (lower.includes("fog") || lower.includes("mist")) return t("fog");
     return t("clear");
-  };
+  }, [t]);
   
-  // Generate fallback data if not provided
-  const generateFallback = (): HourlyData[] => {
+  // CRITICAL: Memoize hourly data to prevent recalculation on every render
+  // This ensures forecast stability when AI interest changes
+  const hourlyData = useMemo(() => {
+    // Defensive: Validate input data
+    if (data && Array.isArray(data) && data.length > 0) {
+      // Filter and validate each item
+      const validData = data
+        .slice(0, 48)
+        .filter((h): h is HourlyData => 
+          h && 
+          typeof h === 'object' &&
+          typeof h.temp === 'number' && 
+          !isNaN(h.temp) &&
+          h.condition && 
+          typeof h.condition === 'string'
+        );
+      
+      if (validData.length > 0) {
+        return validData;
+      }
+    }
+    
+    // Fallback: Generate stable fallback data (memoized)
     const hours: HourlyData[] = [];
     const now = new Date();
     const conditions = ["Clear", "Partly Cloudy", "Cloudy", "Light Rain", "Rain", "Sunny"];
@@ -48,15 +70,13 @@ export default function Hourly48Forecast({ data, unit }: Props) {
       
       hours.push({
         time: formatHourLabel(hour, language),
-        temp: Math.round(20 + Math.sin(i / 8) * 5 + Math.random() * 3),
-        condition: conditions[Math.floor(Math.random() * conditions.length)],
+        temp: Math.round(20 + Math.sin(i / 8) * 5), // Remove Math.random() for stability
+        condition: conditions[i % conditions.length], // Use modulo for stable pattern
       });
     }
     
     return hours;
-  };
-
-  const hourlyData = data && data.length > 0 ? data.slice(0, 48) : generateFallback();
+  }, [data, language]); // Only recalculate when data or language changes
 
   const formatHour = (timeStr: string): string => {
     // If timeStr is already formatted by formatHourLabel, return as is
@@ -86,16 +106,24 @@ export default function Hourly48Forecast({ data, unit }: Props) {
       </div>
 
       <div className="overflow-x-auto scroll-smooth scrollbar-hide">
-        <div className="flex gap-4 pb-2">
+        {/* Fixed spacing: use consistent gap for all screen sizes */}
+        <div className="flex pb-2" style={{ gap: "1rem" }}>
           {hourlyData.map((hour, idx) => {
-            // Calculate the correct hour date: now + index hours
-            const now = new Date();
-            const hourDate = new Date(now.getTime() + idx * 60 * 60 * 1000);
-            const hourLabel = formatHourLabel(hourDate, language);
+            // Defensive: Ensure hour data is valid
+            if (!hour || typeof hour.temp !== 'number' || !hour.condition) {
+              return null;
+            }
+            
+            // Use hour.time if available, otherwise calculate from index
+            const hourLabel = hour.time || (() => {
+              const now = new Date();
+              const hourDate = new Date(now.getTime() + idx * 60 * 60 * 1000);
+              return formatHourLabel(hourDate, language);
+            })();
             
             return (
             <div
-              key={idx}
+              key={`hour-${idx}-${hour.time || idx}`}
               className="bg-transparent flex flex-col items-center min-w-[56px] flex-shrink-0 py-2 border-b-2 border-transparent hover:border-gray-500 transition-colors"
             >
               <div className="text-xs text-gray-300 mb-2">

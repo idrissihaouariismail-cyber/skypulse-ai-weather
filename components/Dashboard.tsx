@@ -1,6 +1,6 @@
 // src/components/Dashboard.tsx
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { WeatherData, Settings, TemperatureUnit } from "../types";
 import WeatherBackground from "./WeatherBackground";
 import RadarPreview from "./RadarPreview";
@@ -339,10 +339,29 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
       return trimmed.length > 0 && !trimmed.startsWith("ai.");
     });
   
+  // CRITICAL: Always return a valid result - never empty or undefined
+  // Fallback to safe generic message if no insights found
+  if (uniqueInsights.length === 0) {
+    // Safe fallback messages for each interest category
+    const fallbackMessages: { [key: string]: string } = {
+      general: t("ai.clear.general") || "Current weather conditions are being analyzed.",
+      driving: t("ai.driving.good") || "Road conditions are normal. Drive safely.",
+      travel: t("ai.travel.ok") || "Travel conditions are favorable.",
+      sports: t("ai.sports.perfect") || "Weather conditions are suitable for outdoor activities.",
+      fishing: t("ai.sea.good") || "Fishing conditions are favorable.",
+      sea: t("ai.sea.good") || "Sea conditions are normal.",
+      health: t("ai.health.uv_moderate") || "Air quality and health conditions are within normal ranges.",
+      agriculture: t("ai.clear.general") || "Weather conditions are suitable for agricultural activities.",
+    };
+    
+    const fallback = fallbackMessages[selectedInterest] || fallbackMessages.general;
+    return fallback.endsWith(".") ? fallback : fallback + ".";
+  }
+  
   // Join insights with proper sentence formatting
   // Each insight should be a complete sentence, so we join with spaces
   // and ensure proper punctuation
-  return uniqueInsights
+  const result = uniqueInsights
     .map(insight => {
       // Ensure each insight ends with proper punctuation
       const trimmed = insight.trim();
@@ -352,14 +371,25 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
       return trimmed;
     })
     .join(" "); // Join with single space for natural reading flow
+  
+  // Final safety check: ensure result is never empty
+  return result || (t("ai.clear.general") || "Weather conditions are being analyzed.");
 }
 
 function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton = false, showLocationHelper = false, onRequestLocation }: Props) {
   const { t, language } = useLanguage();
+  
+  // Defensive: Ensure weatherData and current exist with safe defaults
   const current = weatherData?.current || {};
   const unit = settings.unit;
   const [searchInput, setSearchInput] = useState("");
   const [selectedInterest, setSelectedInterest] = useState<string>("general");
+
+  // Memoize interest change handler to prevent unnecessary re-renders
+  const handleInterestChange = useCallback((interestId: string) => {
+    setSelectedInterest(interestId);
+    // Only updates state - no data fetching or recalculation
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -367,8 +397,9 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
     setSearchInput("");
   };
 
+  // Defensive: Safe defaults for all weather values
   const temp = Math.round(current.temperature ?? 0);
-  const loc = current.location ?? "Unknown";
+  const loc = current.location ?? (t("unknown") || "Unknown");
   const date = formatDashboardDate(new Date(), language);
 
   const humidity = `${current.humidity ?? 0}%`;
@@ -379,12 +410,24 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
   const pressure = `${current.pressure ?? 1012} hPa`;
   const uvIndex = current.uvIndex ?? 0;
 
-  const aqi = weatherData.airQuality?.aqi ?? null;
+  const aqi = weatherData?.airQuality?.aqi ?? null;
   const aqiInfo = getAqiInfo(aqi, t);
-  const aiInsight = generateAIInsight(current, temp, unit === TemperatureUnit.CELSIUS ? "C" : "F", language, t, selectedInterest);
   
-  // Interest options
-  const interests = [
+  // Memoize AI Insight to prevent recalculation when unrelated state changes
+  // Only recalculates when current weather data or selectedInterest changes
+  const aiInsight = useMemo(() => {
+    return generateAIInsight(
+      current, 
+      temp, 
+      unit === TemperatureUnit.CELSIUS ? "C" : "F", 
+      language, 
+      t, 
+      selectedInterest
+    );
+  }, [current, temp, unit, language, t, selectedInterest]);
+  
+  // Memoize interest options to prevent recreation on every render
+  const interests = useMemo(() => [
     { id: "general", icon: "🌍", label: t("interest.general") },
     { id: "driving", icon: "🚗", label: t("interest.driving") },
     { id: "travel", icon: "✈", label: t("interest.travel") },
@@ -393,9 +436,31 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
     { id: "sea", icon: "🌊", label: t("interest.sea") },
     { id: "health", icon: "🌬", label: t("interest.health") },
     { id: "agriculture", icon: "☀", label: t("interest.agriculture") },
-  ];
+  ], [t]);
 
-  const forecast = weatherData.forecast?.slice(0, 5) || [];
+  // CRITICAL: Memoize forecast data to prevent recalculation when interest changes
+  // Forecast data is stable and only depends on weatherData, not UI state
+  const forecast = useMemo(() => {
+    const forecastData = weatherData?.forecast || [];
+    // Defensive: Ensure we have valid forecast items
+    if (!Array.isArray(forecastData) || forecastData.length === 0) {
+      return [];
+    }
+    // Return first 5 items with defensive checks
+    return forecastData.slice(0, 5).filter(f => f && f.date && typeof f.max === 'number' && typeof f.min === 'number');
+  }, [weatherData?.forecast]);
+  
+  // CRITICAL: Memoize hourly data to prevent recalculation when interest changes
+  // Hourly forecast is stable and only depends on weatherData, not UI state
+  const hourlyData = useMemo(() => {
+    const hourly = (weatherData as any)?.hourly;
+    // Defensive: Ensure we have valid hourly data
+    if (!Array.isArray(hourly) || hourly.length === 0) {
+      return undefined; // Let Hourly48Forecast handle fallback
+    }
+    // Return valid hourly items only
+    return hourly.filter((h: any) => h && (h.time || h.date) && typeof h.temp === 'number');
+  }, [(weatherData as any)?.hourly]);
 
   return (
     <div className="min-h-screen bg-black text-white m-0 p-0">
@@ -447,8 +512,8 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
         <div className="text-gray-300 mt-2 text-sm">{loc} | {date}</div>
       </div>
 
-      {/* 48-HOUR FORECAST */}
-      <Hourly48Forecast data={(weatherData as any).hourly} unit={unit} />
+      {/* 48-HOUR FORECAST - Stable data, doesn't change with interest selection */}
+      <Hourly48Forecast data={hourlyData} unit={unit} />
 
       {/* AI INSIGHT CARD - Enhanced with detailed description */}
       <div className="mt-6 px-4">
@@ -476,7 +541,7 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
             {interests.map((interest) => (
               <button
                 key={interest.id}
-                onClick={() => setSelectedInterest(interest.id)}
+                onClick={() => handleInterestChange(interest.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-xs whitespace-nowrap transition-all duration-200 shadow-md ${
                   selectedInterest === interest.id
                     ? "bg-gradient-to-br from-amber-600 via-amber-500 to-amber-400 text-white scale-105 shadow-lg"
@@ -540,7 +605,7 @@ function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton =
         </div>
 
         <div className="overflow-x-auto scroll-smooth scrollbar-hide pb-2">
-          <div className="inline-flex gap-4">
+          <div className="inline-flex gap-4" style={{ gap: "1rem" }}>
             {forecast.length > 0 ? (
               forecast.map((f, i) => (
                 <div
