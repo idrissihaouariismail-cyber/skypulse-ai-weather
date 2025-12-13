@@ -15,6 +15,9 @@ interface Props {
   settings: Settings;
   goTo: (view: any) => void;
   onSearch: (query: string) => void;
+  showLocationButton?: boolean;
+  showLocationHelper?: boolean;
+  onRequestLocation?: () => void;
 }
 
 // Helper: Get AQI category and enhanced health advisory with group-specific recommendations
@@ -296,7 +299,7 @@ function generateAIInsight(current: any, temp: number, unit: string, language: s
     .join(" "); // Join with single space for natural reading flow
 }
 
-function Dashboard({ weatherData, settings, goTo, onSearch }: Props) {
+function Dashboard({ weatherData, settings, goTo, onSearch, showLocationButton = false, showLocationHelper = false, onRequestLocation }: Props) {
   const { t, language } = useLanguage();
   const current = weatherData?.current || {};
   const unit = settings.unit;
@@ -351,6 +354,23 @@ function Dashboard({ weatherData, settings, goTo, onSearch }: Props) {
             </button>
           </div>
         </form>
+        
+        {/* "Use my location" button - shown below search bar when silent detection fails */}
+        {showLocationButton && (
+          <div className="mt-2 flex flex-col items-center gap-1">
+            <button
+              onClick={onRequestLocation}
+              className="px-4 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-medium transition backdrop-blur-sm border border-white/20"
+            >
+              📍 Use my location
+            </button>
+            {showLocationHelper && (
+              <p className="text-[10px] text-white/60 text-center px-2">
+                Please enable location services on your device.
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* TEMPERATURE + LOCATION */}

@@ -64,6 +64,8 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [detectingLocation, setDetectingLocation] = useState<boolean>(true);
+  const [showLocationButton, setShowLocationButton] = useState<boolean>(false);
+  const [showLocationHelper, setShowLocationHelper] = useState<boolean>(false);
 
   const [activeView, setActiveView] = useState<typeof NAV_VIEWS[0]>(NAV_VIEWS[0]);
 
@@ -96,12 +98,14 @@ export default function App() {
     }
   }, []);
 
-  // Auto-detect location on first load - silent fallback if denied
+  // Auto-detect location on first load - silent attempt, no forced popup
   useEffect(() => {
     let mounted = true;
     
     const initializeLocation = async () => {
       setDetectingLocation(true);
+      
+      // Try to get location silently (only works if permission was already granted)
       const userLocation = await getUserLocation();
       
       if (!mounted) return;
@@ -109,11 +113,15 @@ export default function App() {
       setDetectingLocation(false);
       
       if (userLocation) {
-        // Use coordinates directly if permission granted
+        // Permission already granted, use coordinates immediately
         setCurrentLocation(`${userLocation.lat},${userLocation.lon}`);
+        setShowLocationButton(false);
+        setShowLocationHelper(false);
       } else {
-        // Silently fallback to default location if permission denied
+        // Silent detection failed - show button for user to request permission
         setCurrentLocation(DEFAULT_LOCATION);
+        setShowLocationButton(true);
+        setShowLocationHelper(false);
       }
     };
     
@@ -122,6 +130,33 @@ export default function App() {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  // Handle "Use my location" button click - triggers browser permission popup
+  const handleRequestLocation = useCallback(async () => {
+    setShowLocationHelper(false);
+    
+    try {
+      const userLocation = await getUserLocation();
+      
+      if (userLocation) {
+        // Permission granted, update location and hide button
+        setCurrentLocation(`${userLocation.lat},${userLocation.lon}`);
+        setShowLocationButton(false);
+        setShowLocationHelper(false);
+      } else {
+        // Permission denied or GPS disabled
+        setShowLocationButton(true);
+        setShowLocationHelper(true);
+        // Silently continue with default location
+        setCurrentLocation(DEFAULT_LOCATION);
+      }
+    } catch (err) {
+      // GPS disabled or error
+      setShowLocationButton(true);
+      setShowLocationHelper(true);
+      setCurrentLocation(DEFAULT_LOCATION);
+    }
   }, []);
 
   const fetchWeather = useCallback(async (loc: string | { lat: number; lon: number }, unit: TemperatureUnit) => {
@@ -215,6 +250,9 @@ export default function App() {
             settings={settings}
             goTo={setActiveView}
             onSearch={handleSearch}
+            showLocationButton={showLocationButton}
+            showLocationHelper={showLocationHelper}
+            onRequestLocation={handleRequestLocation}
           />
         );
       case "forecast":
@@ -263,7 +301,17 @@ export default function App() {
           />
         );
       default:
-        return <Dashboard weatherData={weatherData} settings={settings} goTo={setActiveView} onSearch={handleSearch} />;
+        return (
+          <Dashboard
+            weatherData={weatherData}
+            settings={settings}
+            goTo={setActiveView}
+            onSearch={handleSearch}
+            showLocationButton={showLocationButton}
+            showLocationHelper={showLocationHelper}
+            onRequestLocation={handleRequestLocation}
+          />
+        );
     }
   };
 
