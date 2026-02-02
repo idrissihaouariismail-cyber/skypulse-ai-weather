@@ -1,21 +1,18 @@
 // src/App.tsx
-import React, { useCallback, useEffect, useState } from "react";
-import { Settings, TemperatureUnit, WeatherData } from "./types";
-import { getComposedWeather } from "./services/composeWeather";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Settings, TemperatureUnit } from "./types";
 import Dashboard from "./components/Dashboard";
-import Forecast from "./components/Forecast";
-import AirQuality from "./components/AirQuality";
-import RadarMap from "./components/RadarMap";
+import RadarRedirectView from "./components/RadarRedirectView";
 import SettingsScreen from "./components/SettingsScreen";
 import AboutApp from "./components/AboutApp";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import { NAV_VIEWS, DEFAULT_LOCATION } from "./constants";
-import { getUserLocation } from "./src/utils/location";
-// Removed import { detectDeviceLanguage, DEFAULT_LOCALE, VIEWS } from "./utils/language";
-// We'll redefine detectDeviceLanguage and DEFAULT_LOCALE locally due to missing module.
+import { useLanguage } from "./src/context/LanguageContext";
+import { useUserLocation } from "./src/hooks/useUserLocation";
+import { WeatherProvider, useWeather } from "./src/context/WeatherContext";
+import { getRadarOpenExternally, getRadarUrl } from "./services/radarRedirect";
 
 const DEFAULT_LOCALE = "en";
-const VIEWS = ["DASHBOARD", "FORECAST", "AIR_QUALITY", "RADAR", "SETTINGS"];
 
 function detectDeviceLanguage(): string {
   if (navigator.languages && navigator.languages.length > 0) {
@@ -27,10 +24,141 @@ function detectDeviceLanguage(): string {
   return DEFAULT_LOCALE;
 }
 
+/** Fallback coordinates when location is denied (San Francisco) so weather still loads */
+const FALLBACK_COORDS = { lat: 37.7749, lon: -122.4194 };
+
 const SETTINGS_STORAGE_KEY = "skypulse_settings";
 
+/** Inner content that consumes WeatherContext (must be inside WeatherProvider). */
+function AppContent(props: {
+  settings: Settings;
+  updateSettings: (s: Settings) => void;
+  activeView: typeof NAV_VIEWS[0];
+  setActiveView: (v: typeof NAV_VIEWS[0]) => void;
+  handleSearch: (query: string) => void;
+  handleCitySelect: (city: { lat: number; lon: number; name?: string; country?: string }) => void;
+  selectedCity: { name?: string; country?: string; lat: number; lon: number } | null;
+  showLocationButton: boolean;
+  showLocationHelper: boolean;
+  onRequestLocation: () => void;
+  onRequestRadar: () => void;
+  handleGoTo: (view: { id: string; name: string }) => void;
+  detectedLanguage: string;
+  defaultLocation: string;
+  /** Coordinates for radar redirect (same as WeatherProvider) */
+  lat: number;
+  lon: number;
+}) {
+  const {
+    settings,
+    updateSettings,
+    activeView,
+    setActiveView,
+    handleSearch,
+    handleCitySelect,
+    selectedCity,
+    showLocationButton,
+    showLocationHelper,
+    onRequestLocation,
+    onRequestRadar,
+    handleGoTo,
+    detectedLanguage,
+    defaultLocation,
+    lat,
+    lon,
+  } = props;
+  const { weather, loading, error } = useWeather();
+
+  if (loading && !weather) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
+        <div className="text-red-400">{error}</div>
+      </div>
+    );
+  }
+  if (!weather?.current) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
+        <div>No weather data available.</div>
+      </div>
+    );
+  }
+
+  switch (activeView.id) {
+    case "dashboard":
+      return (
+        <Dashboard
+          settings={settings}
+          goTo={setActiveView}
+          onSearch={handleSearch}
+          onCitySelect={handleCitySelect}
+          selectedCity={selectedCity}
+          showLocationButton={showLocationButton}
+          showLocationHelper={showLocationHelper}
+          onRequestLocation={onRequestLocation}
+          onRequestRadar={onRequestRadar}
+        />
+      );
+    case "radar":
+      return (
+        <RadarRedirectView
+          lat={lat}
+          lon={lon}
+          onClose={() => setActiveView(NAV_VIEWS[0])}
+        />
+      );
+    case "settings":
+      return (
+        <SettingsScreen
+          settings={settings}
+          setSettings={updateSettings}
+          detectedLanguage={detectedLanguage}
+          onClose={() => setActiveView(NAV_VIEWS[0])}
+          goTo={handleGoTo}
+        />
+      );
+    case "about_app":
+      return (
+        <AboutApp
+          onClose={() => setActiveView(NAV_VIEWS.find((v) => v.id === "settings") || NAV_VIEWS[0])}
+        />
+      );
+    case "privacy_policy":
+      return (
+        <PrivacyPolicy
+          onClose={() => setActiveView(NAV_VIEWS.find((v) => v.id === "settings") || NAV_VIEWS[0])}
+        />
+      );
+    default:
+      return (
+        <Dashboard
+          settings={settings}
+          goTo={setActiveView}
+          onSearch={handleSearch}
+          onCitySelect={handleCitySelect}
+          selectedCity={selectedCity}
+          showLocationButton={showLocationButton}
+          showLocationHelper={showLocationHelper}
+          onRequestLocation={onRequestLocation}
+          onRequestRadar={onRequestRadar}
+        />
+      );
+  }
+}
+
 export default function App() {
-  const [currentLocation, setCurrentLocation] = useState<string>(DEFAULT_LOCATION);
+  const { t } = useLanguage();
+  const { status: locationStatus, city: detectedCity, requestLocation } = useUserLocation({ requestOnMount: true });
+
+  const [currentLocation, setCurrentLocation] = useState<string | { lat: number; lon: number }>(DEFAULT_LOCATION);
+  const [selectedCity, setSelectedCity] = useState<{ name?: string; country?: string; lat: number; lon: number } | null>(null);
   const [detectedLanguage, setDetectedLanguage] = useState<string>("en");
   
   // Initialize settings from localStorage or defaults
@@ -60,12 +188,10 @@ export default function App() {
     };
   });
 
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [detectingLocation, setDetectingLocation] = useState<boolean>(true);
   const [showLocationButton, setShowLocationButton] = useState<boolean>(false);
   const [showLocationHelper, setShowLocationHelper] = useState<boolean>(false);
+
+  const detectingLocation = locationStatus === "detecting";
 
   const [activeView, setActiveView] = useState<typeof NAV_VIEWS[0]>(NAV_VIEWS[0]);
 
@@ -98,227 +224,112 @@ export default function App() {
     }
   }, []);
 
-  // Auto-detect location on first load - silent attempt, no forced popup
+  // Sync useUserLocation result to app state: selected city, fallback coords, and helper visibility
   useEffect(() => {
-    let mounted = true;
-    
-    const initializeLocation = async () => {
-      setDetectingLocation(true);
-      
-      // Try to get location silently (only works if permission was already granted)
-      const userLocation = await getUserLocation();
-      
-      if (!mounted) return;
-      
-      setDetectingLocation(false);
-      
-      if (userLocation) {
-        // Permission already granted, use coordinates immediately
-        setCurrentLocation(`${userLocation.lat},${userLocation.lon}`);
-        setShowLocationButton(false);
-        setShowLocationHelper(false);
-      } else {
-        // Silent detection failed - show button for user to request permission
-        setCurrentLocation(DEFAULT_LOCATION);
-        setShowLocationButton(true);
-        setShowLocationHelper(false);
-      }
-    };
-    
-    initializeLocation();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Handle "Use my location" button click - triggers browser permission popup
-  const handleRequestLocation = useCallback(async () => {
-    setShowLocationHelper(false);
-    
-    try {
-      const userLocation = await getUserLocation();
-      
-      if (userLocation) {
-        // Permission granted, update location and hide button
-        setCurrentLocation(`${userLocation.lat},${userLocation.lon}`);
-        setShowLocationButton(false);
-        setShowLocationHelper(false);
-      } else {
-        // Permission denied or GPS disabled
-        setShowLocationButton(true);
-        setShowLocationHelper(true);
-        // Silently continue with default location
-        setCurrentLocation(DEFAULT_LOCATION);
-      }
-    } catch (err) {
-      // GPS disabled or error
+    if (locationStatus === "granted" && detectedCity) {
+      setSelectedCity(detectedCity);
+      setShowLocationButton(false);
+      setShowLocationHelper(false);
+    } else if (locationStatus === "denied" || locationStatus === "error") {
       setShowLocationButton(true);
       setShowLocationHelper(true);
-      setCurrentLocation(DEFAULT_LOCATION);
+      setCurrentLocation(FALLBACK_COORDS);
     }
-  }, []);
+  }, [locationStatus, detectedCity]);
 
-  const fetchWeather = useCallback(async (loc: string | { lat: number; lon: number }, unit: TemperatureUnit) => {
-    setLoading(true);
-    setError(null);
-    try {
-      // If loc is a coordinate string, convert to object
-      let locationParam: string | { lat: number; lon: number };
-      if (typeof loc === "string" && loc.includes(",")) {
-        const [lat, lon] = loc.split(",").map(Number);
-        if (!isNaN(lat) && !isNaN(lon)) {
-          locationParam = { lat, lon };
-        } else {
-          locationParam = loc;
-        }
-      } else {
-        locationParam = loc;
-      }
-      
-      const data = await getComposedWeather(locationParam, unit);
-      setWeatherData(data);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch weather data.");
-    } finally {
-      setLoading(false);
+  // Handle "Use my location" button click - uses hook's requestLocation (permission + reverse geocode)
+  const handleRequestLocation = useCallback(() => {
+    setShowLocationHelper(false);
+    requestLocation();
+  }, [requestLocation]);
+
+  // Coordinates for WeatherProvider (single source of truth)
+  const { lat, lon } = useMemo(() => {
+    if (selectedCity && typeof selectedCity.lat === "number" && typeof selectedCity.lon === "number") {
+      return { lat: selectedCity.lat, lon: selectedCity.lon };
     }
-  }, []);
-
-  useEffect(() => {
     if (currentLocation) {
-      fetchWeather(currentLocation, settings.unit);
+      if (typeof currentLocation === "string" && currentLocation.includes(",")) {
+        const [latStr, lonStr] = currentLocation.split(",").map(s => s.trim());
+        const lat = parseFloat(latStr);
+        const lon = parseFloat(lonStr);
+        if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
+      } else if (typeof currentLocation === "object" && "lat" in currentLocation && "lon" in currentLocation) {
+        const lat = currentLocation.lat;
+        const lon = currentLocation.lon;
+        if (typeof lat === "number" && typeof lon === "number") return { lat, lon };
+      }
     }
-  }, [currentLocation, settings.unit, fetchWeather]);
+    return { lat: FALLBACK_COORDS.lat, lon: FALLBACK_COORDS.lon };
+  }, [selectedCity, currentLocation]);
 
-  const handleSearch = (query: string) => {
+  const locationLabel = selectedCity?.name
+    ? (selectedCity.country ? `${selectedCity.name}, ${selectedCity.country}` : selectedCity.name)
+    : null;
+
+  const handleSearch = useCallback((query: string) => {
     if (!query.trim()) return;
     setCurrentLocation(query.trim());
     setActiveView(NAV_VIEWS[0]);
-  };
+  }, []);
+
+  const handleCitySelect = useCallback((city: { lat: number; lon: number; name?: string; country?: string }) => {
+    // State 3: selectedCity - stores full city object
+    // This triggers weather fetch via useEffect
+    setSelectedCity(city);
+    setActiveView(NAV_VIEWS[0]);
+  }, []);
 
   const handleGoTo = (view: { id: string; name: string }) => {
     const navView = NAV_VIEWS.find(v => v.id === view.id) || NAV_VIEWS[0];
     setActiveView(navView);
   };
 
+  /** Open Radar: if preference "open externally", open in new tab; else show in-app WebView. */
+  const handleRequestRadar = useCallback(() => {
+    if (getRadarOpenExternally()) {
+      window.open(getRadarUrl(lat, lon), "_blank", "noopener,noreferrer");
+      return;
+    }
+    setActiveView(NAV_VIEWS.find(v => v.id === "radar") || NAV_VIEWS[0]);
+  }, [lat, lon]);
+
   const renderContent = () => {
-    // Show location detection message
     if (detectingLocation) {
-      const lang = settings.language === "auto" ? detectedLanguage : settings.language;
-      const messages: Record<string, string> = {
-        en: "Detecting your location…",
-        fr: "Détection de votre position…",
-        ar: "جاري تحديد موقعك...",
-      };
       return (
         <div className="flex flex-col items-center justify-center h-full min-h-screen bg-black text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-          <div className="text-lg">{messages[lang] || messages.en}</div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4" aria-hidden />
+          <div className="text-lg">{t("location.detecting")}</div>
         </div>
       );
     }
-    
-    if (loading && !weatherData) {
-      return (
-        <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
-          <div>Loading...</div>
-        </div>
-      );
-    }
-    if (error) {
-      return (
-        <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
-          <div className="text-red-400">{error}</div>
-        </div>
-      );
-    }
-    if (!weatherData || !weatherData.current) {
-      return (
-        <div className="flex items-center justify-center h-full min-h-screen bg-black text-white">
-          <div>No weather data available.</div>
-        </div>
-      );
-    }
-
-    switch (activeView.id) {
-      case "dashboard":
-        return (
-          <Dashboard
-            weatherData={weatherData}
-            settings={settings}
-            goTo={setActiveView}
-            onSearch={handleSearch}
-            showLocationButton={showLocationButton}
-            showLocationHelper={showLocationHelper}
-            onRequestLocation={handleRequestLocation}
-          />
-        );
-      case "forecast":
-        return (
-          <Forecast
-            forecast={weatherData.forecast || []}
-            unit={settings.unit}
-            onClose={() => setActiveView(NAV_VIEWS[0])}
-          />
-        );
-      case "air_quality":
-        return (
-          <AirQuality
-            airQuality={weatherData.airQuality}
-            onClose={() => setActiveView(NAV_VIEWS[0])}
-          />
-        );
-      case "radar":
-        return (
-          <RadarMap
-            location={weatherData.current.location || DEFAULT_LOCATION}
-            onClose={() => setActiveView(NAV_VIEWS[0])}
-          />
-        );
-      case "settings":
-        return (
-          <SettingsScreen
-            weatherData={weatherData}
-            settings={settings}
-            setSettings={updateSettings}
-            detectedLanguage={detectedLanguage}
-            onClose={() => setActiveView(NAV_VIEWS[0])}
-            goTo={handleGoTo}
-          />
-        );
-      case "about_app":
-        return (
-          <AboutApp
-            onClose={() => setActiveView(NAV_VIEWS.find(v => v.id === "settings") || NAV_VIEWS[0])}
-          />
-        );
-      case "privacy_policy":
-        return (
-          <PrivacyPolicy
-            onClose={() => setActiveView(NAV_VIEWS.find(v => v.id === "settings") || NAV_VIEWS[0])}
-          />
-        );
-      default:
-        return (
-          <Dashboard
-            weatherData={weatherData}
-            settings={settings}
-            goTo={setActiveView}
-            onSearch={handleSearch}
-            showLocationButton={showLocationButton}
-            showLocationHelper={showLocationHelper}
-            onRequestLocation={handleRequestLocation}
-          />
-        );
-    }
+    return (
+      <WeatherProvider lat={lat} lon={lon} unit={settings.unit} locationLabel={locationLabel}>
+        <AppContent
+          settings={settings}
+          updateSettings={updateSettings}
+          activeView={activeView}
+          setActiveView={setActiveView}
+          handleSearch={handleSearch}
+          handleCitySelect={handleCitySelect}
+          selectedCity={selectedCity}
+          showLocationButton={showLocationButton}
+          showLocationHelper={showLocationHelper}
+          onRequestLocation={handleRequestLocation}
+          onRequestRadar={handleRequestRadar}
+          handleGoTo={handleGoTo}
+          detectedLanguage={detectedLanguage}
+          defaultLocation={DEFAULT_LOCATION}
+          lat={lat}
+          lon={lon}
+        />
+      </WeatherProvider>
+    );
   };
 
   try {
     return (
       <div className="min-h-screen bg-woodsmoke text-white font-sans">
-        {/* Main content */}
         <main className="max-w-md mx-auto h-screen overflow-auto">
           {renderContent()}
         </main>

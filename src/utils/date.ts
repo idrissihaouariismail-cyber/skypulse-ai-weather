@@ -72,8 +72,33 @@ export function formatHourLabel(date: Date, language: string) {
     language === "fr" ? "fr-FR" :
     "en-US";
 
-  // This returns strings like "00", "01", "23" using Latin digits when locale '...-nu-latn' is used
   return new Intl.DateTimeFormat(locale, options).format(date);
+}
+
+/**
+ * Format hour label from UTC timestamp + city timezone.
+ * Returns the REAL local hour of the city (e.g. "14:00"). No hardcoded hours.
+ * @param dtUnixSeconds - Forecast slot time in Unix seconds (UTC)
+ * @param timezoneOffsetSeconds - City offset from UTC in seconds (from API)
+ * @param language - App language for locale
+ */
+export function formatHourLabelFromUtc(
+  dtUnixSeconds: number,
+  timezoneOffsetSeconds: number,
+  language: string
+): string {
+  const locale =
+    language === "ar" || language === "ar-MA" ? "ar-u-nu-latn" :
+    language === "fr" ? "fr-FR" :
+    "en-US";
+  const cityLocalMs = (dtUnixSeconds + timezoneOffsetSeconds) * 1000;
+  const d = new Date(cityLocalMs);
+  return new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  }).format(d);
 }
 
 /**

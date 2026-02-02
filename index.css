@@ -1,0 +1,83 @@
+.weather-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  display: block;
+  background-image: url("/icons/weather-icons-v2.jpg");
+  background-repeat: no-repeat;
+  background-size: 400% 300%;
+  background-color: transparent;
+}
+
+.weather-icon-sprite {
+  width: 52px;
+  height: 52px;
+  display: block;
+  flex-shrink: 0;
+  background-image: url("/icons/weather-icons-v2.jpg");
+  background-repeat: no-repeat;
+  background-size: 400% 300%;
+}
+
+/* Radar map: full screen Leaflet container so map always renders (no black screen) */
+.radar-map-leaflet.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 100vh;
+  background: #1a1a1a;
+}
+
+/* Map fade-in on load (600ms) */
+.radar-map-fade-in {
+  transition: opacity 0.6s ease-out;
+}
+
+/* Smooth crossfade when switching layers (300ms) */
+.radar-map-leaflet .leaflet-tile-pane .leaflet-layer {
+  transition: opacity 0.3s ease;
+}
+
+/* Layer buttons: solid accent colors, minimal premium style */
+.radar-layer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 72px;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radar-layer-btn:active {
+  transform: scale(0.98);
+}
+
+.radar-layer-btn--active.radar-layer-btn--clouds {
+  background: rgba(200, 220, 255, 0.95);
+  border-color: rgba(220, 235, 255, 0.9);
+  color: #1a2744;
+  box-shadow: 0 0 16px rgba(200, 220, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.radar-layer-btn--active.radar-layer-btn--wind {
+  background: rgba(135, 206, 250, 0.95);
+  border-color: rgba(176, 224, 255, 0.9);
+  color: #0d2137;
+  box-shadow: 0 0 16px rgba(135, 206, 250, 0.45);
+  transform: scale(1.05);
+}
+
+.radar-layer-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  filter: contrast(1.1);
+}
+

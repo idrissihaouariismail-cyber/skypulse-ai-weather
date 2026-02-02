@@ -3,10 +3,10 @@ import React from "react";
 import CloseButton from "./CloseButton";
 import WeatherBackground from "./WeatherBackground";
 import WeatherIcon from "./WeatherIcon";
-import { Settings, TemperatureUnit, WeatherData } from "../types";
+import { Settings, TemperatureUnit } from "../types";
 import { useLanguage } from "../src/context/LanguageContext";
+import { useWeather } from "../src/context/WeatherContext";
 
-// Local helper for language names
 const getLanguageName = (code: string): string => {
   const names: Record<string, string> = {
     en: "English",
@@ -19,7 +19,6 @@ const getLanguageName = (code: string): string => {
 };
 
 interface Props {
-  weatherData: WeatherData | null;
   settings: Settings;
   setSettings: (s: Settings) => void;
   detectedLanguage: string;
@@ -27,8 +26,9 @@ interface Props {
   goTo: (view: { id: string; name: string }) => void;
 }
 
-export default function SettingsScreen({ weatherData, settings, setSettings, detectedLanguage, onClose, goTo }: Props) {
+export default function SettingsScreen({ settings, setSettings, detectedLanguage, onClose, goTo }: Props) {
   const { language, setLanguage, t } = useLanguage();
+  const { weather } = useWeather();
   
   const handleUnitChange = (unit: TemperatureUnit) => {
     setSettings({ ...settings, unit });
@@ -166,26 +166,26 @@ export default function SettingsScreen({ weatherData, settings, setSettings, det
         {/* Live Preview - Dynamic Weather Card */}
         <div className="rounded-xl border border-white/10 overflow-hidden bg-white/5">
           <div className="relative h-40 overflow-hidden">
-            {weatherData?.current ? (
+            {weather?.current ? (
               <>
                 <div className="absolute inset-0">
                   <WeatherBackground
-                    condition={(weatherData.current.condition || "clear").toLowerCase()}
+                    condition={(weather.current.condition || "clear").toLowerCase()}
                   />
                 </div>
                 <div className="absolute inset-0 bg-black/30" />
                 <div className="relative h-full w-full flex items-center justify-between px-5 z-10">
                   <div className="text-left">
                     <div className="text-3xl font-bold text-white">
-                      {Math.round(weatherData.current.temperature ?? 0)}°{settings.unit}
+                      {Math.round(weather.current.temperature ?? 0)}°{settings.unit}
                     </div>
                     <div className="text-sm text-white/90">
-                      {weatherData.current.condition || "Clear"} – Live Preview
+                      {weather.current.condition || "Clear"} – Live Preview
                     </div>
                   </div>
                   <div className="flex items-center justify-center">
                     <WeatherIcon
-                      condition={weatherData.current.condition || "clear"}
+                      condition={weather.current.condition || "clear"}
                       size={48}
                       className="drop-shadow-lg"
                     />

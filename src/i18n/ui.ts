@@ -2,6 +2,7 @@ export const UI_TEXT = {
   en: {
     // Search & Navigation
     search: "Search city...",
+    "search.loading": "Searching...",
     settings: "Settings",
     dashboard: "Dashboard",
     forecast: "Forecast",
@@ -20,6 +21,7 @@ export const UI_TEXT = {
     sunrise: "Sunrise",
     sunset: "Sunset",
     dayLength: "Day length",
+    moonBrightness: "Moon brightness",
     
     // Forecast
     dayForecast: "5-Day Forecast",
@@ -79,13 +81,20 @@ export const UI_TEXT = {
     sunny: "Sunny",
     overcast: "Overcast",
     
-    // AQI Categories
+    // AQI Categories (rule-based labels; 0–50, 51–100, 101–150, 151–200, 201+)
     unknown: "Unknown",
     airQualityDataUnavailable: "Air quality data unavailable",
     good: "Good",
     unhealthyForSensitiveGroups: "Unhealthy for Sensitive Groups",
     veryUnhealthy: "Very Unhealthy",
     hazardous: "Hazardous",
+    // AQI range – single fixed explanatory text per range (rule-based, no AI)
+    "aqi.range.unavailable": "Air quality data unavailable.",
+    "aqi.range.good.text": "Air quality is satisfactory. No health precautions needed.",
+    "aqi.range.moderate.text": "Air quality is acceptable. Unusually sensitive people may consider limiting prolonged outdoor exertion.",
+    "aqi.range.unhealthySensitive.text": "Sensitive groups should reduce prolonged or heavy exertion outdoors.",
+    "aqi.range.unhealthy.text": "Everyone should limit prolonged or heavy exertion outdoors.",
+    "aqi.range.veryUnhealthy.text": "Health alert: everyone may experience serious effects. Avoid strenuous outdoor activities.",
     
     // AQI Advisories (legacy - kept for compatibility)
     aqiGoodAdvisory: "Air quality is satisfactory and poses little risk.",
@@ -139,9 +148,53 @@ export const UI_TEXT = {
     
     // Air Quality - Common
     "air.press.for.details": "Tap for detailed analysis",
+
+    // AQI interpretation (weather context: wind, pressure)
+    "aqi.interpretation.unavailable": "Air quality interpretation unavailable.",
+    "aqi.interpretation.dispersion": "Strong winds are dispersing pollutants.",
+    "aqi.interpretation.accumulation": "Weak winds and high pressure may allow pollution to accumulate.",
+    "aqi.interpretation.stagnation": "Weak winds and low pressure may keep pollutants lingering.",
+    "aqi.interpretation.neutral": "Wind and pressure are not strongly affecting pollutant dispersion.",
     
-    // AI Insight
+    // AI Insight – how it may feel (no AQI, no good/bad, no health advice)
     aiInsight: "AI Insight",
+    weatherTipsAlerts: "How it may feel",
+    "aiInsight.title": "How it may feel",
+    "aiInsight.feel.hot": "It may feel very warm.",
+    "aiInsight.feel.warm": "It may feel warm.",
+    "aiInsight.feel.mild": "Temperatures may feel mild.",
+    "aiInsight.feel.cool": "It may feel cool.",
+    "aiInsight.feel.cold": "It may feel cold.",
+    "aiInsight.feel.humid": "The air may feel humid.",
+    "aiInsight.feel.breeze": "A breeze may be noticeable.",
+    "aiInsight.feel.windy": "Wind may be noticeable.",
+    "aiInsight.feel.rainPossible": "Rain is possible.",
+    "aiInsight.feel.fog": "Visibility may feel reduced.",
+    "aiInsight.feel.stormPossible": "Storms are possible.",
+    "aiInsight.shortTermStable": "Conditions remain stable in the short term.",
+    
+    // Radar Insights
+    "radar.aiInsight": "AI Weather Analysis",
+    "radar.wind": "Wind",
+    "radar.clouds": "Clouds",
+    "radar.rain": "Rain",
+    "radar.temperature": "Temperature",
+    "radar.insight.low.pressure.wind": "Low pressure system is generating strong winds. Wind patterns may intensify as pressure continues to drop.",
+    "radar.insight.high.pressure.calm": "High pressure system is creating calm conditions. Winds are likely to remain light and stable.",
+    "radar.insight.low.pressure": "Low pressure detected. This may lead to increased cloud formation and potential precipitation development.",
+    "radar.insight.wind.clouds": "Strong winds are moving cloud systems rapidly. Cloud patterns may shift significantly over the next few hours.",
+    "radar.insight.wind.clear": "Windy conditions with clear skies suggest stable atmospheric conditions. Wind may help disperse any developing clouds.",
+    "radar.insight.clouds.humidity": "High cloud density combined with elevated humidity increases precipitation probability. Rain development is likely within 2-4 hours.",
+    "radar.insight.clouds.rain": "Dense cloud cover is producing active precipitation. Rain intensity may vary as cloud systems move.",
+    "radar.insight.clouds.low.humidity": "Cloud formation present but humidity levels are moderate. Precipitation probability is moderate.",
+    "radar.insight.wind.rain": "Wind is driving precipitation patterns. Rain may intensify or shift direction as wind patterns evolve.",
+    "radar.insight.strong.wind.rain": "Strong winds are significantly affecting rain distribution. Expect rapid changes in precipitation intensity and location.",
+    "radar.insight.low.visibility": "Reduced visibility conditions detected. This may be due to fog, precipitation, or atmospheric moisture.",
+    "radar.insight.expectation.rain": "Conditions favor rain development within the next 2-3 hours. Monitor cloud movement for precipitation onset.",
+    "radar.insight.expectation.clear": "High pressure and clear conditions suggest stable weather. No significant changes expected in the short term.",
+    "radar.insight.wind.increase": "Low pressure system may cause wind speeds to increase as the system develops.",
+    "radar.insight.wind.decrease": "As high pressure stabilizes, wind speeds are likely to decrease gradually.",
+    "radar.insight.general": "Current atmospheric conditions are being analyzed. Weather patterns appear stable with no immediate significant changes expected.",
     
     // AI Insight Interests
     "interest.general": "General",
@@ -225,12 +278,35 @@ export const UI_TEXT = {
     // Forecast
     viewAll: "View all",
     forecastDataUnavailable: "Forecast data unavailable",
-    hourForecast: "48-hour Forecast",
-    scrollToViewHourly: "Scroll to view hourly changes",
+    hourForecast: "48-hour forecast (3-hour intervals)",
+    scrollToViewHourly: "Every 3 hours · Local time",
     
     // Radar
     liveWeatherPatterns: "Live weather patterns and precipitation map",
     tapToViewFullRadar: "Tap to view full radar",
+    "radar.loading": "Loading radar…",
+    "radar.externalLabel": "You are viewing a professional external radar",
+    "radar.openInBrowser": "Open in external browser",
+    "radar.gate.title": "Radar",
+    "radar.continue": "Continue",
+    "radar.opening": "Opening radar…",
+    "radar.play": "Play",
+    "radar.pause": "Pause",
+    "radar.insight.short.rain": "Precipitation and rain patterns from live radar.",
+    "radar.insight.short.clouds": "Cloud cover and movement from satellite.",
+    "radar.insight.short.wind": "Wind flow and pressure patterns.",
+    "radar.insight.now.loading": "Current weather data is loading.",
+    "radar.insight.now.stable": "Stable atmospheric conditions.",
+    "radar.insight.now.unstable": "Some atmospheric instability at the moment.",
+    "radar.insight.now.highPressureLightWinds": "Weak winds and high pressure are limiting cloud formation.",
+    "radar.insight.now.lowPressureBreezy": "Lower pressure and breezy winds suggest some atmospheric instability at the moment.",
+    "radar.insight.now.strongWindsChanges": "Strong winds may bring quick changes to cloud cover and local conditions.",
+    "radar.insight.now.moderateWindsClouds": "Moderate winds are moving air masses and can shift cloud patterns.",
+    "radar.insight.now.cloudsModerateTemp": "Cloud cover is moderating temperature and reducing direct sunlight.",
+    "radar.insight.now.precipHeavy": "Precipitation is present with possible heavier bursts; radar shows its movement.",
+    "radar.insight.now.precipLight": "Light precipitation is occurring; radar reflects its current spread and motion.",
+    "radar.insight.now.precipLow": "Precipitation activity is low or absent in the area.",
+    "radar.insight.now.fallbackStable": "Conditions are relatively stable. Low precipitation and light winds prevail.",
     
     // Air Quality
     tapForDetailedAnalysis: "Tap for detailed analysis",
@@ -259,6 +335,7 @@ export const UI_TEXT = {
     sunrise: "Lever du soleil",
     sunset: "Coucher du soleil",
     dayLength: "Durée du jour",
+    moonBrightness: "Luminosité lunaire",
     
     // Forecast
     dayForecast: "Prévisions sur 5 jours",
@@ -325,6 +402,12 @@ export const UI_TEXT = {
     unhealthyForSensitiveGroups: "Malsain pour les groupes sensibles",
     veryUnhealthy: "Très malsain",
     hazardous: "Dangereux",
+    "aqi.range.unavailable": "Données de qualité de l'air indisponibles.",
+    "aqi.range.good.text": "La qualité de l'air est satisfaisante. Aucune précaution particulière.",
+    "aqi.range.moderate.text": "La qualité de l'air est acceptable. Les personnes sensibles peuvent limiter les efforts prolongés en plein air.",
+    "aqi.range.unhealthySensitive.text": "Les groupes sensibles devraient réduire les efforts prolongés ou intenses en plein air.",
+    "aqi.range.unhealthy.text": "Tout le monde devrait limiter les efforts prolongés ou intenses en plein air.",
+    "aqi.range.veryUnhealthy.text": "Alerte sanitaire : effets possibles pour tous. Évitez les activités intenses en plein air.",
     
     // AQI Advisories (legacy - kept for compatibility)
     aqiGoodAdvisory: "La qualité de l'air est satisfaisante et présente peu de risques.",
@@ -378,9 +461,50 @@ export const UI_TEXT = {
     
     // Air Quality - Common
     "air.press.for.details": "Appuyez pour une analyse détaillée",
+    "aqi.interpretation.unavailable": "Interprétation de la qualité de l'air indisponible.",
+    "aqi.interpretation.dispersion": "Les vents forts dispersent les polluants.",
+    "aqi.interpretation.accumulation": "Vents faibles et haute pression peuvent favoriser l'accumulation de polluants.",
+    "aqi.interpretation.stagnation": "Vents faibles et basse pression peuvent maintenir les polluants.",
+    "aqi.interpretation.neutral": "Le vent et la pression n'influencent pas fortement la dispersion des polluants.",
     
-    // AI Insight
+    // AI Insight – how it may feel
     aiInsight: "Analyse IA",
+    "aiInsight.title": "Comment ça peut ressentir",
+    "aiInsight.feel.hot": "Il peut faire très chaud.",
+    "aiInsight.feel.warm": "Il peut faire doux.",
+    "aiInsight.feel.mild": "Les températures peuvent sembler douces.",
+    "aiInsight.feel.cool": "Il peut faire frais.",
+    "aiInsight.feel.cold": "Il peut faire froid.",
+    "aiInsight.feel.humid": "L'air peut sembler humide.",
+    "aiInsight.feel.breeze": "Une brise peut être sensible.",
+    "aiInsight.feel.windy": "Le vent peut être sensible.",
+    "aiInsight.feel.rainPossible": "La pluie est possible.",
+    "aiInsight.feel.fog": "La visibilité peut sembler réduite.",
+    "aiInsight.feel.stormPossible": "Des orages sont possibles.",
+    "aiInsight.shortTermStable": "Les conditions restent stables à court terme.",
+    
+    // Radar Insights
+    "radar.aiInsight": "Analyse Météo IA",
+    "radar.wind": "Vent",
+    "radar.clouds": "Nuages",
+    "radar.rain": "Pluie",
+    "radar.temperature": "Température",
+    "radar.insight.low.pressure.wind": "Un système de basse pression génère des vents forts. Les modèles de vent peuvent s'intensifier à mesure que la pression continue de baisser.",
+    "radar.insight.high.pressure.calm": "Un système de haute pression crée des conditions calmes. Les vents devraient rester légers et stables.",
+    "radar.insight.low.pressure": "Basse pression détectée. Cela peut entraîner une formation accrue de nuages et un développement potentiel de précipitations.",
+    "radar.insight.wind.clouds": "Des vents forts déplacent rapidement les systèmes nuageux. Les modèles de nuages peuvent changer considérablement dans les prochaines heures.",
+    "radar.insight.wind.clear": "Des conditions venteuses avec ciel clair suggèrent des conditions atmosphériques stables. Le vent peut aider à disperser les nuages en développement.",
+    "radar.insight.clouds.humidity": "Une densité nuageuse élevée combinée à une humidité élevée augmente la probabilité de précipitations. Le développement de la pluie est probable dans les 2-4 heures.",
+    "radar.insight.clouds.rain": "Une couverture nuageuse dense produit des précipitations actives. L'intensité de la pluie peut varier à mesure que les systèmes nuageux se déplacent.",
+    "radar.insight.clouds.low.humidity": "Formation nuageuse présente mais niveaux d'humidité modérés. La probabilité de précipitations est modérée.",
+    "radar.insight.wind.rain": "Le vent dirige les modèles de précipitations. La pluie peut s'intensifier ou changer de direction à mesure que les modèles de vent évoluent.",
+    "radar.insight.strong.wind.rain": "Des vents forts affectent considérablement la distribution de la pluie. Attendez-vous à des changements rapides de l'intensité et de l'emplacement des précipitations.",
+    "radar.insight.low.visibility": "Conditions de visibilité réduite détectées. Cela peut être dû au brouillard, aux précipitations ou à l'humidité atmosphérique.",
+    "radar.insight.expectation.rain": "Les conditions favorisent le développement de la pluie dans les 2-3 prochaines heures. Surveillez le mouvement des nuages pour le début des précipitations.",
+    "radar.insight.expectation.clear": "Une haute pression et des conditions claires suggèrent un temps stable. Aucun changement significatif attendu à court terme.",
+    "radar.insight.wind.increase": "Un système de basse pression peut provoquer une augmentation de la vitesse du vent à mesure que le système se développe.",
+    "radar.insight.wind.decrease": "À mesure que la haute pression se stabilise, les vitesses du vent devraient diminuer progressivement.",
+    "radar.insight.general": "Les conditions atmosphériques actuelles sont en cours d'analyse. Les modèles météorologiques semblent stables sans changements significatifs immédiats attendus.",
     
     // AI Insight Interests
     "interest.general": "Général",
@@ -470,6 +594,29 @@ export const UI_TEXT = {
     // Radar
     liveWeatherPatterns: "Modèles météorologiques en direct et carte des précipitations",
     tapToViewFullRadar: "Appuyez pour voir le radar complet",
+    "radar.loading": "Chargement du radar…",
+    "radar.externalLabel": "Vous consultez un radar externe professionnel",
+    "radar.openInBrowser": "Ouvrir dans le navigateur",
+    "radar.gate.title": "Radar",
+    "radar.continue": "Continuer",
+    "radar.opening": "Ouverture du radar…",
+    "radar.play": "Lecture",
+    "radar.pause": "Pause",
+    "radar.insight.short.rain": "Précipitations et pluie en direct.",
+    "radar.insight.short.clouds": "Couverture nuageuse et mouvement.",
+    "radar.insight.short.wind": "Vent et champs de pression.",
+    "radar.insight.now.loading": "Chargement des données météo en cours.",
+    "radar.insight.now.stable": "Conditions atmosphériques stables.",
+    "radar.insight.now.unstable": "Une certaine instabilité atmosphérique en ce moment.",
+    "radar.insight.now.highPressureLightWinds": "Des vents faibles et une pression élevée limitent la formation des nuages.",
+    "radar.insight.now.lowPressureBreezy": "Une pression plus basse et des vents modérés suggèrent une certaine instabilité atmosphérique.",
+    "radar.insight.now.strongWindsChanges": "Des vents forts peuvent entraîner des changements rapides de la couverture nuageuse et des conditions locales.",
+    "radar.insight.now.moderateWindsClouds": "Des vents modérés déplacent les masses d'air et peuvent modifier les formations nuageuses.",
+    "radar.insight.now.cloudsModerateTemp": "La couverture nuageuse modère la température et réduit l'ensoleillement direct.",
+    "radar.insight.now.precipHeavy": "Des précipitations sont présentes avec de possibles averses plus fortes ; le radar montre leur déplacement.",
+    "radar.insight.now.precipLight": "De légères précipitations sont en cours ; le radar reflète leur extension et leur mouvement.",
+    "radar.insight.now.precipLow": "L'activité des précipitations est faible ou absente dans la zone.",
+    "radar.insight.now.fallbackStable": "Les conditions sont relativement stables. Faibles précipitations et vents légers.",
     
     // Air Quality
     tapForDetailedAnalysis: "Appuyez pour une analyse détaillée",
@@ -480,6 +627,7 @@ export const UI_TEXT = {
   ar: {
     // Search & Navigation
     search: "ابحث عن مدينة...",
+    "search.loading": "جاري البحث...",
     settings: "الإعدادات",
     dashboard: "لوحة التحكم",
     forecast: "التنبؤات",
@@ -498,6 +646,7 @@ export const UI_TEXT = {
     sunrise: "شروق الشمس",
     sunset: "غروب الشمس",
     dayLength: "طول النهار",
+    moonBrightness: "سطوع القمر",
     
     // Forecast
     dayForecast: "التنبؤ لمدة 5 أيام",
@@ -564,6 +713,12 @@ export const UI_TEXT = {
     unhealthyForSensitiveGroups: "غير صحي للمجموعات الحساسة",
     veryUnhealthy: "غير صحي جداً",
     hazardous: "خطير",
+    "aqi.range.unavailable": "بيانات جودة الهواء غير متاحة.",
+    "aqi.range.good.text": "جودة الهواء مرضية. لا حاجة لاحتياطات صحية.",
+    "aqi.range.moderate.text": "جودة الهواء مقبولة. قد يفضّل الأشخاص الحساسون تقليل المجهود الطويل في الخارج.",
+    "aqi.range.unhealthySensitive.text": "يجب على المجموعات الحساسة تقليل المجهود الطويل أو الشاق في الخارج.",
+    "aqi.range.unhealthy.text": "يجب على الجميع تقليل المجهود الطويل أو الشاق في الخارج.",
+    "aqi.range.veryUnhealthy.text": "تنبيه صحي: قد يتأثر الجميع. تجنّب النشاط الشاق في الخارج.",
     
     // AQI Advisories (legacy - kept for compatibility)
     aqiGoodAdvisory: "جودة الهواء مرضية ولا تشكل خطراً كبيراً.",
@@ -617,9 +772,51 @@ export const UI_TEXT = {
     
     // Air Quality - Common
     "air.press.for.details": "اضغط للتحليل التفصيلي",
+    "aqi.interpretation.unavailable": "تفسير جودة الهواء غير متاح.",
+    "aqi.interpretation.dispersion": "الرياح القوية تبدد الملوثات.",
+    "aqi.interpretation.accumulation": "الرياح الضعيفة والضغط العالي قد يسمحان بتراكم التلوث.",
+    "aqi.interpretation.stagnation": "الرياح الضعيفة والضغط المنخفض قد تبقي الملوثات.",
+    "aqi.interpretation.neutral": "الرياح والضغط لا يؤثران بقوة على تشتت الملوثات.",
     
-    // AI Insight
+    // AI Insight – how it may feel
     aiInsight: "تحليل ذكي",
+    weatherTipsAlerts: "كيف قد تشعر بالطقس",
+    "aiInsight.title": "كيف قد تشعر بالطقس",
+    "aiInsight.feel.hot": "قد تشعر بحرارة شديدة.",
+    "aiInsight.feel.warm": "قد تشعر بالدفء.",
+    "aiInsight.feel.mild": "درجة الحرارة قد تبدو معتدلة.",
+    "aiInsight.feel.cool": "قد تشعر بالبرودة الخفيفة.",
+    "aiInsight.feel.cold": "قد تشعر بالبرودة.",
+    "aiInsight.feel.humid": "الهواء قد يبدو رطباً.",
+    "aiInsight.feel.breeze": "نسيم قد يكون ملحوظاً.",
+    "aiInsight.feel.windy": "الرياح قد تكون ملحوظة.",
+    "aiInsight.feel.rainPossible": "المطر ممكن.",
+    "aiInsight.feel.fog": "الرؤية قد تبدو أقل.",
+    "aiInsight.feel.stormPossible": "عواصف ممكنة.",
+    "aiInsight.shortTermStable": "الظروف تبقى مستقرة على المدى القصير.",
+    
+    // Radar Insights
+    "radar.aiInsight": "تحليل الطقس الذكي",
+    "radar.wind": "الرياح",
+    "radar.clouds": "الغيوم",
+    "radar.rain": "المطر",
+    "radar.temperature": "درجة الحرارة",
+    "radar.insight.low.pressure.wind": "نظام الضغط المنخفض يولد رياحاً قوية. قد تزداد أنماط الرياح مع استمرار انخفاض الضغط.",
+    "radar.insight.high.pressure.calm": "نظام الضغط العالي يخلق ظروفاً هادئة. من المرجح أن تبقى الرياح خفيفة ومستقرة.",
+    "radar.insight.low.pressure": "تم اكتشاف ضغط منخفض. قد يؤدي هذا إلى زيادة تكوين السحب وتطور هطول الأمطار المحتمل.",
+    "radar.insight.wind.clouds": "الرياح القوية تحرك أنظمة السحب بسرعة. قد تتغير أنماط السحب بشكل كبير خلال الساعات القادمة.",
+    "radar.insight.wind.clear": "ظروف عاصفة مع سماء صافية تشير إلى ظروف جوية مستقرة. قد تساعد الرياح في تشتيت أي سحب متطورة.",
+    "radar.insight.clouds.humidity": "كثافة سحب عالية مع رطوبة مرتفعة تزيد من احتمالية هطول الأمطار. من المحتمل تطور المطر خلال 2-4 ساعات.",
+    "radar.insight.clouds.rain": "غطاء سحابي كثيف ينتج هطولاً نشطاً. قد تختلف شدة المطر مع تحرك أنظمة السحب.",
+    "radar.insight.clouds.low.humidity": "تكوين سحب موجود لكن مستويات الرطوبة معتدلة. احتمالية هطول الأمطار معتدلة.",
+    "radar.insight.wind.rain": "الرياح تدفع أنماط هطول الأمطار. قد يزداد المطر أو يغير اتجاهه مع تطور أنماط الرياح.",
+    "radar.insight.strong.wind.rain": "الرياح القوية تؤثر بشكل كبير على توزيع المطر. توقع تغييرات سريعة في شدة وموقع هطول الأمطار.",
+    "radar.insight.low.visibility": "تم اكتشاف ظروف رؤية منخفضة. قد يكون هذا بسبب الضباب أو هطول الأمطار أو الرطوبة الجوية.",
+    "radar.insight.expectation.rain": "الظروف تفضل تطور المطر خلال 2-3 ساعات القادمة. راقب حركة السحب لبدء هطول الأمطار.",
+    "radar.insight.expectation.clear": "الضغط العالي والظروف الصافية تشير إلى طقس مستقر. لا توجد تغييرات كبيرة متوقعة على المدى القصير.",
+    "radar.insight.wind.increase": "قد يتسبب نظام الضغط المنخفض في زيادة سرعة الرياح مع تطور النظام.",
+    "radar.insight.wind.decrease": "مع استقرار الضغط العالي، من المرجح أن تنخفض سرعات الرياح تدريجياً.",
+    "radar.insight.general": "يتم تحليل الظروف الجوية الحالية. تبدو أنماط الطقس مستقرة دون تغييرات كبيرة فورية متوقعة.",
     
     // AI Insight Interests
     "interest.general": "عام",
@@ -703,12 +900,35 @@ export const UI_TEXT = {
     // Forecast
     viewAll: "عرض الكل",
     forecastDataUnavailable: "بيانات التنبؤ غير متاحة",
-    hourForecast: "التنبؤ لمدة 48 ساعة",
-    scrollToViewHourly: "قم بالتمرير لعرض التغييرات بالساعة",
+    hourForecast: "تنبؤ 48 ساعة (كل 3 ساعات)",
+    scrollToViewHourly: "كل 3 ساعات · التوقيت المحلي",
     
     // Radar
     liveWeatherPatterns: "أنماط الطقس المباشرة وخريطة هطول الأمطار",
     tapToViewFullRadar: "اضغط لعرض الرادار الكامل",
+    "radar.loading": "جاري تحميل الرادار…",
+    "radar.externalLabel": "أنت تشاهد راداراً خارجياً احترافياً",
+    "radar.openInBrowser": "فتح في المتصفح الخارجي",
+    "radar.gate.title": "الرادار",
+    "radar.continue": "متابعة",
+    "radar.opening": "جاري فتح الرادار…",
+    "radar.play": "تشغيل",
+    "radar.pause": "إيقاف",
+    "radar.insight.short.rain": "هطول الأمطار وأنماط المطر من الرادار المباشر.",
+    "radar.insight.short.clouds": "غطاء السحب والحركة من الأقمار الصناعية.",
+    "radar.insight.short.wind": "تدفق الرياح وأنماط الضغط.",
+    "radar.insight.now.loading": "جاري تحميل بيانات الطقس.",
+    "radar.insight.now.stable": "الأوضاع الجوية مستقرة.",
+    "radar.insight.now.unstable": "بعض عدم الاستقرار الجوي في الوقت الحالي.",
+    "radar.insight.now.highPressureLightWinds": "الرياح ضعيفة والضغط الجوي المرتفع يحدّان من تشكّل السحب.",
+    "radar.insight.now.lowPressureBreezy": "ضغط منخفض ورياح معتدلة تشير إلى بعض عدم الاستقرار الجوي.",
+    "radar.insight.now.strongWindsChanges": "الرياح القوية قد تؤدي إلى تغيّرات سريعة في الغطاء السحابي والظروف المحلية.",
+    "radar.insight.now.moderateWindsClouds": "الرياح المعتدلة تحرك الكتل الهوائية وقد تغيّر أنماط السحب.",
+    "radar.insight.now.cloudsModerateTemp": "الغطاء السحابي يعدّل درجة الحرارة ويقلّل أشعة الشمس المباشرة.",
+    "radar.insight.now.precipHeavy": "هطول أمطار مع احتمال هطول أقوى؛ الرادار يوضح حركتها.",
+    "radar.insight.now.precipLight": "هطول خفيف جارٍ؛ الرادار يعكس امتداده وحركته.",
+    "radar.insight.now.precipLow": "نشاط الهطول ضعيف أو معدوم في المنطقة.",
+    "radar.insight.now.fallbackStable": "الأوضاع مستقرة نسبياً. هطول ضعيف ورياح خفيفة.",
     
     // Air Quality
     tapForDetailedAnalysis: "اضغط للتحليل التفصيلي",
@@ -719,6 +939,7 @@ export const UI_TEXT = {
   es: {
     // Search & Navigation
     search: "Buscar ciudad...",
+    "search.loading": "Buscando...",
     settings: "Configuración",
     dashboard: "Panel",
     forecast: "Pronóstico",
@@ -737,6 +958,7 @@ export const UI_TEXT = {
     sunrise: "Amanecer",
     sunset: "Atardecer",
     dayLength: "Duración del día",
+    moonBrightness: "Brillo lunar",
     
     // Forecast
     dayForecast: "Pronóstico de 5 días",
@@ -799,9 +1021,18 @@ export const UI_TEXT = {
     // AQI Categories
     unknown: "Desconocido",
     airQualityDataUnavailable: "Datos de calidad del aire no disponibles",
+    good: "Bueno",
+    moderate: "Moderado",
     unhealthyForSensitiveGroups: "Insalubre para grupos sensibles",
+    unhealthy: "Insalubre",
     veryUnhealthy: "Muy insalubre",
     hazardous: "Peligroso",
+    "aqi.range.unavailable": "Datos de calidad del aire no disponibles.",
+    "aqi.range.good.text": "La calidad del aire es satisfactoria. No se necesitan precauciones.",
+    "aqi.range.moderate.text": "La calidad del aire es aceptable. Las personas sensibles pueden limitar el esfuerzo prolongado al aire libre.",
+    "aqi.range.unhealthySensitive.text": "Los grupos sensibles deben reducir el esfuerzo prolongado o intenso al aire libre.",
+    "aqi.range.unhealthy.text": "Todos deben limitar el esfuerzo prolongado o intenso al aire libre.",
+    "aqi.range.veryUnhealthy.text": "Alerta de salud: todos pueden experimentar efectos graves. Evite actividades intensas al aire libre.",
     
     // AQI Advisories (legacy - kept for compatibility)
     aqiGoodAdvisory: "La calidad del aire es satisfactoria y presenta poco riesgo.",
@@ -855,9 +1086,51 @@ export const UI_TEXT = {
     
     // Air Quality - Common
     "air.press.for.details": "Toque para análisis detallado",
+    "aqi.interpretation.unavailable": "Interpretación de calidad del aire no disponible.",
+    "aqi.interpretation.dispersion": "Los vientos fuertes dispersan los contaminantes.",
+    "aqi.interpretation.accumulation": "Vientos débiles y alta presión pueden permitir la acumulación de contaminación.",
+    "aqi.interpretation.stagnation": "Vientos débiles y baja presión pueden mantener los contaminantes.",
+    "aqi.interpretation.neutral": "El viento y la presión no afectan fuertemente la dispersión de contaminantes.",
     
-    // AI Insight
+    // AI Insight – how it may feel
     aiInsight: "Análisis IA",
+    weatherTipsAlerts: "Cómo puede sentirse",
+    "aiInsight.title": "Cómo puede sentirse",
+    "aiInsight.feel.hot": "Puede sentirse muy cálido.",
+    "aiInsight.feel.warm": "Puede sentirse cálido.",
+    "aiInsight.feel.mild": "Las temperaturas pueden sentirse suaves.",
+    "aiInsight.feel.cool": "Puede sentirse fresco.",
+    "aiInsight.feel.cold": "Puede sentirse frío.",
+    "aiInsight.feel.humid": "El aire puede sentirse húmedo.",
+    "aiInsight.feel.breeze": "Puede notarse una brisa.",
+    "aiInsight.feel.windy": "Puede notarse el viento.",
+    "aiInsight.feel.rainPossible": "La lluvia es posible.",
+    "aiInsight.feel.fog": "La visibilidad puede sentirse reducida.",
+    "aiInsight.feel.stormPossible": "Tormentas son posibles.",
+    "aiInsight.shortTermStable": "Las condiciones se mantienen estables a corto plazo.",
+    
+    // Radar Insights
+    "radar.aiInsight": "Análisis Meteorológico IA",
+    "radar.wind": "Viento",
+    "radar.clouds": "Nubes",
+    "radar.rain": "Lluvia",
+    "radar.temperature": "Temperatura",
+    "radar.insight.low.pressure.wind": "Un sistema de baja presión está generando vientos fuertes. Los patrones de viento pueden intensificarse a medida que la presión continúa bajando.",
+    "radar.insight.high.pressure.calm": "Un sistema de alta presión está creando condiciones calmadas. Es probable que los vientos permanezcan ligeros y estables.",
+    "radar.insight.low.pressure": "Baja presión detectada. Esto puede llevar a una mayor formación de nubes y desarrollo potencial de precipitaciones.",
+    "radar.insight.wind.clouds": "Vientos fuertes están moviendo sistemas de nubes rápidamente. Los patrones de nubes pueden cambiar significativamente en las próximas horas.",
+    "radar.insight.wind.clear": "Condiciones ventosas con cielos despejados sugieren condiciones atmosféricas estables. El viento puede ayudar a dispersar cualquier nube en desarrollo.",
+    "radar.insight.clouds.humidity": "Alta densidad de nubes combinada con humedad elevada aumenta la probabilidad de precipitaciones. Es probable el desarrollo de lluvia en 2-4 horas.",
+    "radar.insight.clouds.rain": "Cobertura de nubes densa está produciendo precipitaciones activas. La intensidad de la lluvia puede variar a medida que los sistemas de nubes se mueven.",
+    "radar.insight.clouds.low.humidity": "Formación de nubes presente pero niveles de humedad moderados. La probabilidad de precipitaciones es moderada.",
+    "radar.insight.wind.rain": "El viento está dirigiendo los patrones de precipitación. La lluvia puede intensificarse o cambiar de dirección a medida que los patrones de viento evolucionan.",
+    "radar.insight.strong.wind.rain": "Vientos fuertes están afectando significativamente la distribución de la lluvia. Espere cambios rápidos en la intensidad y ubicación de las precipitaciones.",
+    "radar.insight.low.visibility": "Condiciones de visibilidad reducida detectadas. Esto puede deberse a niebla, precipitaciones o humedad atmosférica.",
+    "radar.insight.expectation.rain": "Las condiciones favorecen el desarrollo de lluvia en las próximas 2-3 horas. Monitoree el movimiento de las nubes para el inicio de las precipitaciones.",
+    "radar.insight.expectation.clear": "Alta presión y condiciones despejadas sugieren clima estable. No se esperan cambios significativos a corto plazo.",
+    "radar.insight.wind.increase": "Un sistema de baja presión puede causar que las velocidades del viento aumenten a medida que el sistema se desarrolla.",
+    "radar.insight.wind.decrease": "A medida que la alta presión se estabiliza, es probable que las velocidades del viento disminuyan gradualmente.",
+    "radar.insight.general": "Las condiciones atmosféricas actuales están siendo analizadas. Los patrones climáticos parecen estables sin cambios significativos inmediatos esperados.",
     
     // AI Insight Interests
     "interest.general": "General",
@@ -941,12 +1214,35 @@ export const UI_TEXT = {
     // Forecast
     viewAll: "Ver todo",
     forecastDataUnavailable: "Datos de pronóstico no disponibles",
-    hourForecast: "Pronóstico de 48 horas",
-    scrollToViewHourly: "Desplácese para ver los cambios por hora",
+    hourForecast: "Pronóstico 48 h (cada 3 h)",
+    scrollToViewHourly: "Cada 3 h · Hora local",
     
     // Radar
     liveWeatherPatterns: "Patrones meteorológicos en vivo y mapa de precipitaciones",
     tapToViewFullRadar: "Toque para ver el radar completo",
+    "radar.loading": "Cargando radar…",
+    "radar.externalLabel": "Estás viendo un radar externo profesional",
+    "radar.openInBrowser": "Abrir en el navegador externo",
+    "radar.gate.title": "Radar",
+    "radar.continue": "Continuar",
+    "radar.opening": "Abriendo radar…",
+    "radar.play": "Reproducir",
+    "radar.pause": "Pausa",
+    "radar.insight.short.rain": "Precipitaciones y lluvia en tiempo real.",
+    "radar.insight.short.clouds": "Cobertura nubosa y movimiento.",
+    "radar.insight.short.wind": "Flujo de viento y patrones de presión.",
+    "radar.insight.now.loading": "Cargando datos meteorológicos.",
+    "radar.insight.now.stable": "Condiciones atmosféricas estables.",
+    "radar.insight.now.unstable": "Alguna inestabilidad atmosférica en este momento.",
+    "radar.insight.now.highPressureLightWinds": "Vientos débiles y alta presión limitan la formación de nubes.",
+    "radar.insight.now.lowPressureBreezy": "Baja presión y vientos moderados sugieren cierta inestabilidad atmosférica.",
+    "radar.insight.now.strongWindsChanges": "Vientos fuertes pueden traer cambios rápidos en la nubosidad y condiciones locales.",
+    "radar.insight.now.moderateWindsClouds": "Vientos moderados mueven masas de aire y pueden cambiar los patrones nubosos.",
+    "radar.insight.now.cloudsModerateTemp": "La nubosidad modera la temperatura y reduce la luz solar directa.",
+    "radar.insight.now.precipHeavy": "Hay precipitación con posibles rachas más intensas; el radar muestra su movimiento.",
+    "radar.insight.now.precipLight": "Precipitación ligera en curso; el radar refleja su extensión y movimiento.",
+    "radar.insight.now.precipLow": "La actividad de precipitación es baja o ausente en la zona.",
+    "radar.insight.now.fallbackStable": "Las condiciones son relativamente estables. Precipitación escasa y vientos ligeros.",
     
     // Air Quality
     tapForDetailedAnalysis: "Toque para análisis detallado",

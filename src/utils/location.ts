@@ -17,7 +17,7 @@ export async function getUserLocation(): Promise<{ lat: number; lon: number } | 
         });
       },
       () => resolve(null),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   });
 }

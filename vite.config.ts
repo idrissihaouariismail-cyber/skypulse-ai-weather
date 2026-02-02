@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist', // Output directory (default, but explicit for clarity)
       },
       server: {
-        port: 3000,
+        port: 5173,
         host: '0.0.0.0',
       },
       plugins: [react()],
